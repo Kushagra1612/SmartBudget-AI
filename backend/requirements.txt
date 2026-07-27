@@ -1,0 +1,40 @@
+# ---- Phase 1: Core backend ----
+fastapi==0.140.0
+uvicorn[standard]==0.51.0
+pydantic==2.13.4
+pydantic-settings==2.14.2
+python-dotenv==1.2.2
+
+# ---- Added in later phases (kept here as a single source of truth for the whole project) ----
+
+# Phase 2 - Database
+ sqlalchemy
+ psycopg2-binary
+ alembic
+
+# Phase 3 - Authentication
+# python-jose[cryptography]
+# passlib[bcrypt]
+# python-multipart
+
+# Phase 4/5 - PDF processing
+# pdfplumber
+# camelot-py[cv]
+
+# Phase 7 - Machine learning
+# scikit-learn
+# pandas
+# numpy
+# joblib
+
+# Phase 8 - LangGraph agents
+# langgraph
+# langchain
+
+# Phase 9 - Gemini LLM
+# langchain-google-genai
+# google-generativeai
+
+# Phase 10 - Testing
+# pytest
+# httpx
