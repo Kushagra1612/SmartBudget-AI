@@ -13,9 +13,11 @@ python-dotenv==1.2.2
  alembic
 
 # Phase 3 - Authentication
-# python-jose[cryptography]
-# passlib[bcrypt]
-# python-multipart
+ python-jose[cryptography]
+ passlib[bcrypt]
+ python-multipart
+ email-validator
+ 
 
 # Phase 4/5 - PDF processing
 # pdfplumber

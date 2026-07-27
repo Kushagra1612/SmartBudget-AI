@@ -10,8 +10,9 @@ easy to see the whole backend surface at a glance as phases are added.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.database.init_db import init_db
 from app.config import settings
+
+from app.routers import  auth_router
 
 app = FastAPI(
     title="Smart Budget AI",
@@ -19,10 +20,6 @@ app = FastAPI(
     version="0.1.0",
 )
 
-@app.on_event("startup")
-def startup():
-    init_db()
-    
 # Allow the React frontend (Vite dev server by default) to call this API.
 app.add_middleware(
     CORSMiddleware,
@@ -61,7 +58,7 @@ def health_check():
 # from app.routers import anomalies       # Phase 7/8 -> GET /anomalies
 # from app.routers import chat            # Phase 9  -> POST /chat
 #
-# app.include_router(auth.router, tags=["Authentication"])
+app.include_router(auth_router)
 # app.include_router(upload.router, tags=["Upload"])
 # app.include_router(transactions.router, tags=["Transactions"])
 # app.include_router(dashboard.router, tags=["Dashboard"])

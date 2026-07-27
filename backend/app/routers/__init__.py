@@ -1,1 +1,5 @@
-"""FastAPI route handlers, one module per resource (auth, upload, transactions, ...)."""
+from .auth import router as auth_router
+
+__all__ = [
+    "auth_router",
+]
