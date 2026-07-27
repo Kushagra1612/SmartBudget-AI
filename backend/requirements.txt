@@ -17,17 +17,24 @@ python-dotenv==1.2.2
  passlib[bcrypt]
  python-multipart
  email-validator
- 
+
 
 # Phase 4/5 - PDF processing
-# pdfplumber
-# camelot-py[cv]
+ pdfplumber
+ camelot-py[cv]
+ rapidfuzz
+ python-dateutil
+ openpyxl
+ pytesseract 
+ pdf2image 
+ pillow
+ rapidfuzz
 
 # Phase 7 - Machine learning
-# scikit-learn
-# pandas
-# numpy
-# joblib
+ scikit-learn
+ pandas
+ numpy
+ joblib
 
 # Phase 8 - LangGraph agents
 # langgraph

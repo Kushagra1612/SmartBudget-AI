@@ -1,0 +1,43 @@
+{
+    "Shopping": [
+        "AMAZON",
+        "AMAZON PAY",
+        "FLIPKART",
+        "MYNTRA",
+        "AJIO"
+    ],
+
+    "Food": [
+        "SWIGGY",
+        "ZOMATO",
+        "DOMINOS",
+        "PIZZA HUT",
+        "MCDONALDS"
+    ],
+
+    "Travel": [
+        "UBER",
+        "OLA",
+        "IRCTC"
+    ],
+
+    "Bills": [
+        "AIRTEL",
+        "JIO",
+        "BSNL",
+        "VODAFONE",
+        "ELECTRICITY"
+    ],
+
+    "Entertainment": [
+        "NETFLIX",
+        "SPOTIFY",
+        "PRIME VIDEO"
+    ],
+
+    "Income": [
+        "SALARY",
+        "PAYROLL",
+        "INTEREST"
+    ]
+}
