@@ -2,6 +2,7 @@ import enum
 import uuid
 
 from sqlalchemy import (
+    Boolean,
     Column,
     Date,
     DateTime,
@@ -9,7 +10,6 @@ from sqlalchemy import (
     ForeignKey,
     Numeric,
     String,
-    Boolean,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -48,15 +48,53 @@ class Transaction(Base):
 
     user_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("users.id", ondelete="CASCADE"),
+        ForeignKey(
+            "users.id",
+            ondelete="CASCADE",
+        ),
         nullable=False,
         index=True,
     )
+
+    statement_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            "statements.id",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+        index=True,
+    )
+
+    # ==========================
+    # Financial Data
+    # ==========================
 
     amount = Column(
         Numeric(12, 2),
         nullable=False,
     )
+
+    debit = Column(
+        Numeric(12, 2),
+        nullable=True,
+        default=0,
+    )
+
+    credit = Column(
+        Numeric(12, 2),
+        nullable=True,
+        default=0,
+    )
+
+    balance = Column(
+        Numeric(12, 2),
+        nullable=True,
+    )
+
+    # ==========================
+    # Classification
+    # ==========================
 
     transaction_type = Column(
         Enum(TransactionType),
@@ -67,6 +105,15 @@ class Transaction(Base):
         Enum(TransactionCategory),
         nullable=False,
     )
+
+    payment_mode = Column(
+        String(50),
+        nullable=True,
+    )
+
+    # ==========================
+    # Details
+    # ==========================
 
     merchant = Column(
         String(200),
@@ -90,6 +137,17 @@ class Transaction(Base):
         index=True,
     )
 
+    transaction_hash = Column(
+        String(64),
+        unique=True,
+        nullable=True,
+        index=True,
+    )
+
+    # ==========================
+    # Metadata
+    # ==========================
+
     is_deleted = Column(
         Boolean,
         default=False,
@@ -107,7 +165,16 @@ class Transaction(Base):
         onupdate=func.now(),
     )
 
+    # ==========================
+    # Relationships
+    # ==========================
+
     user = relationship(
         "User",
+        back_populates="transactions",
+    )
+
+    statement = relationship(
+        "Statement",
         back_populates="transactions",
     )

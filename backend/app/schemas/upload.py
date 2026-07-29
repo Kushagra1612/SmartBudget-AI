@@ -1,5 +1,6 @@
-from pydantic import BaseModel
 from typing import List
+
+from pydantic import BaseModel
 
 
 class TransactionResponse(BaseModel):
@@ -15,7 +16,11 @@ class TransactionResponse(BaseModel):
 
 
 class UploadResponse(BaseModel):
+    statement_id: str
     filename: str
+    bank: str
+    pages: int
+    confidence: float
     transactions_found: int
     message: str
     method: str

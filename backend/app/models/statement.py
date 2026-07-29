@@ -1,0 +1,78 @@
+import uuid
+
+from sqlalchemy import (
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+)
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+
+from app.database.base import Base
+
+
+class Statement(Base):
+    __tablename__ = "statements"
+
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    filename = Column(
+        String(255),
+        nullable=False,
+    )
+
+    original_filename = Column(
+        String(255),
+        nullable=False,
+    )
+
+    bank = Column(
+        String(100),
+        nullable=True,
+    )
+
+    parser_method = Column(
+        String(50),
+        nullable=True,
+    )
+
+    pages = Column(
+        Integer,
+        nullable=True,
+    )
+
+    confidence = Column(
+        Float,
+        nullable=True,
+    )
+
+    uploaded_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )
+
+    user = relationship(
+        "User",
+        back_populates="statements",
+    )
+
+    transactions = relationship(
+        "Transaction",
+        back_populates="statement",
+        cascade="all, delete-orphan",
+    )

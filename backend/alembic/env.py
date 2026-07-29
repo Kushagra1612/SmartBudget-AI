@@ -8,6 +8,7 @@ from app.database.base import Base
 
 # Import all models so Alembic can detect them
 from app.models.user import User
+from app.models.statement import Statement
 from app.models.transaction import Transaction
 from app.models.budget import Budget
 from app.models.anomaly import Anomaly

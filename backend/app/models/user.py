@@ -51,8 +51,18 @@ class User(Base):
         onupdate=func.now(),
     )
 
+    # ==========================
+    # Relationships
+    # ==========================
+
     transactions = relationship(
         "Transaction",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+    statements = relationship(
+        "Statement",
         back_populates="user",
         cascade="all, delete-orphan",
     )
