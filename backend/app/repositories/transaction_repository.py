@@ -1,7 +1,8 @@
 from datetime import date
 from decimal import Decimal
+from uuid import UUID
 
-from sqlalchemy import and_
+from sqlalchemy import and_, extract, func
 from sqlalchemy.orm import Session
 
 from app.models.transaction import Transaction
@@ -13,7 +14,7 @@ class TransactionRepository:
     def transaction_exists(
         db: Session,
         *,
-        user_id,
+        user_id: UUID,
         transaction_date: date,
         amount: Decimal,
         merchant: str,
@@ -83,7 +84,7 @@ class TransactionRepository:
     @staticmethod
     def get_by_statement_id(
         db: Session,
-        statement_id,
+        statement_id: UUID,
     ) -> list[Transaction]:
         """
         Return all non-deleted transactions belonging to a statement.
@@ -101,7 +102,7 @@ class TransactionRepository:
     @staticmethod
     def delete_by_statement_id(
         db: Session,
-        statement_id,
+        statement_id: UUID,
     ) -> int:
         """
         Soft delete all transactions belonging to a statement.
@@ -122,3 +123,35 @@ class TransactionRepository:
         db.commit()
 
         return len(transactions)
+
+    @staticmethod
+    def get_category_spending(
+        db: Session,
+        *,
+        user_id: UUID,
+        category,
+        month: int,
+        year: int,
+    ) -> Decimal:
+        """
+        Calculate total spending for a category in a given month.
+        """
+
+        total = (
+            db.query(
+                func.coalesce(
+                    func.sum(Transaction.amount),
+                    0,
+                )
+            )
+            .filter(
+                Transaction.user_id == user_id,
+                Transaction.category == category,
+                extract("month", Transaction.transaction_date) == month,
+                extract("year", Transaction.transaction_date) == year,
+                Transaction.is_deleted.is_(False),
+            )
+            .scalar()
+        )
+
+        return total

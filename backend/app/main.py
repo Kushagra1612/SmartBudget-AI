@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-
+from app.routers import budget 
 from app.routers import  auth_router,upload_router
 from app.routers import transactions
 
@@ -55,15 +55,16 @@ def health_check():
 # from app.routers import upload          # Phase 4  -> POST /upload-pdf
 # from app.routers import transactions    # Phase 5  -> GET /transactions
 # from app.routers import dashboard       # Phase 6  -> GET /dashboard
-# from app.routers import budget          # Phase 8/9 -> GET /budget
+#          # Phase 8/9 -> GET /budget
 # from app.routers import anomalies       # Phase 7/8 -> GET /anomalies
 # from app.routers import chat            # Phase 9  -> POST /chat
 #
 app.include_router(auth_router)
 app.include_router(upload_router)
 app.include_router(transactions.router)
-# app.include_router(transactions.router, tags=["Transactions"])
+app.include_router(budget.router)
+
 # app.include_router(dashboard.router, tags=["Dashboard"])
-# app.include_router(budget.router, tags=["Budget"])
+
 # app.include_router(anomalies.router, tags=["Anomalies"])
 # app.include_router(chat.router, tags=["AI Assistant"])
