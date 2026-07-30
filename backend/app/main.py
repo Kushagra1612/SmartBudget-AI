@@ -14,6 +14,7 @@ from app.config import settings
 from app.routers import budget 
 from app.routers import  auth_router,upload_router
 from app.routers import transactions
+from app.routers.dashboard import router as dashboard_router
 
 app = FastAPI(
     title="Smart Budget AI",
@@ -63,6 +64,7 @@ app.include_router(auth_router)
 app.include_router(upload_router)
 app.include_router(transactions.router)
 app.include_router(budget.router)
+app.include_router(dashboard_router)
 
 # app.include_router(dashboard.router, tags=["Dashboard"])
 
