@@ -1,9 +1,13 @@
-from decimal import Decimal
 from datetime import date
+from decimal import Decimal
 from uuid import UUID
 
 from pydantic import BaseModel
 
+
+# -------------------------
+# Dashboard Models
+# -------------------------
 
 class TopCategory(BaseModel):
     category: str
@@ -19,11 +23,52 @@ class RecentTransaction(BaseModel):
     transaction_type: str
 
 
-class MonthlyTrend(BaseModel):
-    month: str
-    income: Decimal
-    expense: Decimal
+# -------------------------
+# Analytics Models
+# -------------------------
 
+class FinancialScoreResponse(BaseModel):
+    score: int
+    grade: str
+    status: str
+
+
+class SpendingAnalysisResponse(BaseModel):
+    total_expense: Decimal
+    transaction_count: int
+    average_transaction: Decimal
+    top_category: str
+    category_count: int
+
+
+class BudgetAnalysisResponse(BaseModel):
+    total_budget: Decimal
+    total_spent: Decimal
+    overall_utilization: float
+    overspent_categories: int
+    near_limit_categories: int
+
+
+class SavingsAnalysisResponse(BaseModel):
+    income: Decimal
+    expenses: Decimal
+    savings: Decimal
+    savings_rate: float
+    expense_ratio: float
+    cash_flow: Decimal
+    status: str
+
+
+class AnalyticsResponse(BaseModel):
+    financial_score: FinancialScoreResponse
+    spending: SpendingAnalysisResponse
+    budget: BudgetAnalysisResponse
+    savings: SavingsAnalysisResponse
+
+
+# -------------------------
+# Dashboard Response
+# -------------------------
 
 class DashboardResponse(BaseModel):
     monthly_income: Decimal
@@ -33,10 +78,8 @@ class DashboardResponse(BaseModel):
     total_transactions: int
     total_budgets: int
 
-    financial_health_score: int
+    analytics: AnalyticsResponse
 
     top_categories: list[TopCategory]
 
     recent_transactions: list[RecentTransaction]
-
-    monthly_trend: list[MonthlyTrend]

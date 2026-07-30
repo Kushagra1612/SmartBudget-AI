@@ -135,3 +135,36 @@ class DashboardRepository:
             .limit(limit)
             .all()
         )
+
+    @staticmethod
+    def get_category_totals(
+        db: Session,
+        *,
+        user_id: UUID,
+        month: int,
+        year: int,
+    ) -> dict[str, float]:
+        rows = (
+            db.query(
+                Transaction.category,
+                func.sum(Transaction.amount).label("amount"),
+            )
+            .filter(
+                Transaction.user_id == user_id,
+                Transaction.transaction_type == TransactionType.EXPENSE,
+                extract("month", Transaction.transaction_date) == month,
+                extract("year", Transaction.transaction_date) == year,
+                Transaction.is_deleted.is_(False),
+            )
+            .group_by(Transaction.category)
+            .all()
+        )
+
+        return {
+            (
+                row.category.value
+                if hasattr(row.category, "value")
+                else row.category
+            ): row.amount
+            for row in rows
+        }
