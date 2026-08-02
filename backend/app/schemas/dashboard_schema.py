@@ -5,9 +5,9 @@ from uuid import UUID
 from pydantic import BaseModel
 
 
-# -------------------------
+# ---------------------------------
 # Dashboard Models
-# -------------------------
+# ---------------------------------
 
 class TopCategory(BaseModel):
     category: str
@@ -23,9 +23,9 @@ class RecentTransaction(BaseModel):
     transaction_type: str
 
 
-# -------------------------
+# ---------------------------------
 # Analytics Models
-# -------------------------
+# ---------------------------------
 
 class FinancialScoreResponse(BaseModel):
     score: int
@@ -33,12 +33,19 @@ class FinancialScoreResponse(BaseModel):
     status: str
 
 
+class CategorySpendingResponse(BaseModel):
+    category: str
+    amount: Decimal
+    percentage: float
+
+
 class SpendingAnalysisResponse(BaseModel):
     total_expense: Decimal
     transaction_count: int
     average_transaction: Decimal
-    top_category: str
-    category_count: int
+    top_category: str | None
+
+    categories: list[CategorySpendingResponse]
 
 
 class BudgetAnalysisResponse(BaseModel):
@@ -66,9 +73,9 @@ class AnalyticsResponse(BaseModel):
     savings: SavingsAnalysisResponse
 
 
-# -------------------------
+# ---------------------------------
 # Dashboard Response
-# -------------------------
+# ---------------------------------
 
 class DashboardResponse(BaseModel):
     monthly_income: Decimal

@@ -15,6 +15,7 @@ from app.routers import budget
 from app.routers import  auth_router,upload_router
 from app.routers import transactions
 from app.routers.dashboard import router as dashboard_router
+from app.routers.ai import router as ai_router
 
 app = FastAPI(
     title="Smart Budget AI",
@@ -48,25 +49,10 @@ def health_check():
     return {"status": "ok"}
 
 
-# ---------------------------------------------------------------------------
-# Routers are registered here as each phase adds them. Paths match the spec
-# exactly (no /api prefix) -- left commented as a map of what's coming.
-# ---------------------------------------------------------------------------
-# from app.routers import auth            # Phase 3  -> POST /register, POST /login
-# from app.routers import upload          # Phase 4  -> POST /upload-pdf
-# from app.routers import transactions    # Phase 5  -> GET /transactions
-# from app.routers import dashboard       # Phase 6  -> GET /dashboard
-#          # Phase 8/9 -> GET /budget
-# from app.routers import anomalies       # Phase 7/8 -> GET /anomalies
-# from app.routers import chat            # Phase 9  -> POST /chat
-#
+
 app.include_router(auth_router)
 app.include_router(upload_router)
 app.include_router(transactions.router)
 app.include_router(budget.router)
 app.include_router(dashboard_router)
-
-# app.include_router(dashboard.router, tags=["Dashboard"])
-
-# app.include_router(anomalies.router, tags=["Anomalies"])
-# app.include_router(chat.router, tags=["AI Assistant"])
+app.include_router(ai_router)

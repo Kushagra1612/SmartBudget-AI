@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.models.budget import Budget
 from app.models.transaction import Transaction, TransactionType
-
+from decimal import Decimal
 
 class DashboardRepository:
 
@@ -143,7 +143,7 @@ class DashboardRepository:
         user_id: UUID,
         month: int,
         year: int,
-    ) -> dict[str, float]:
+    ) -> dict[str, Decimal]:
         rows = (
             db.query(
                 Transaction.category,

@@ -21,10 +21,6 @@ class TransactionService:
         statement_id,
         parsed_transactions: list,
     ):
-        """
-        Convert parsed transaction dictionaries into Transaction models
-        and save them to the database.
-        """
 
         if not parsed_transactions:
             return []

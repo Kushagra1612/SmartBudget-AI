@@ -38,9 +38,7 @@ class AnalyticsService:
         category_totals: dict[str, Decimal],
         budget_summary: list[Any],
     ) -> AnalyticsResult:
-        """
-        Runs all analytics engines and returns a single AnalyticsResult.
-        """
+        
 
         # Spending Analysis
         spending = SpendingAnalysisEngine.analyze(
