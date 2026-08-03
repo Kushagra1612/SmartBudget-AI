@@ -1,5 +1,5 @@
 from app.ai.gemini_service import GeminiService
-from app.ai.planner import Planner
+from app.ai.memory import Memory
 from app.ai.prompts import (
     CHAT_PROMPT,
     FINANCIAL_ADVICE_PROMPT,
@@ -7,9 +7,16 @@ from app.ai.prompts import (
 
 
 class FinancialAgent:
+    """
+    Responsible for communicating with Gemini.
+
+    Planning and tool execution are handled
+    by AIService.
+    """
 
     def __init__(self):
         self.llm = GeminiService()
+        self.memory = Memory()
 
     def generate_advice(
         self,
@@ -34,16 +41,28 @@ class FinancialAgent:
     def handle_query(
         self,
         *,
-        db,
-        user_id,
-        month: int,
-        year: int,
         question: str,
+        context: str,
     ) -> str:
 
+        memory = self.memory.get_context()
+
         prompt = CHAT_PROMPT.format(
+            memory=memory,
+            context=context,
             question=question,
-            context=tool_results,
         )
 
-        return self.llm.generate(prompt)
+        response = self.llm.generate(prompt)
+
+        self.memory.add(
+            role="User",
+            message=question,
+        )
+
+        self.memory.add(
+            role="Assistant",
+            message=response,
+        )
+
+        return response

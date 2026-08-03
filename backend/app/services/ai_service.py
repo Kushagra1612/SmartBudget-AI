@@ -89,43 +89,46 @@ class AIService:
             analytics=analytics,
         )
 
-    @staticmethod
-    def chat(
-        db: Session,
-        *,
-        user_id: UUID,
-        month: int,
-        year: int,
-        question: str,
-    ) -> str:
-        
-        try:
-            tools = AIService.planner.plan(question)
+@staticmethod
+def chat(
+    db: Session,
+    *,
+    user_id: UUID,
+    month: int,
+    year: int,
+    question: str,
+) -> str:
 
-        except Exception:
-            
-            tools = ["dashboard"]
+    try:
 
-        
-        tool_results = AIService.executor.execute(
-            tools=tools,
-            db=db,
-            user_id=user_id,
-            month=month,
-            year=year,
-        )
+        history = AIService.agent.memory.get_recent_history()
 
-       
-        context = ContextBuilder.build(tool_results)
-
-        if not context.strip():
-            context = (
-                "No financial information "
-                "could be collected."
-            )
-
-        
-        return AIService.agent.handle_query(
+        tools = AIService.planner.plan(
             question=question,
-            context=context,
+            history=history,
         )
+
+    except Exception:
+
+        tools = ["dashboard"]
+
+    tool_results = AIService.executor.execute(
+        tools=tools,
+        db=db,
+        user_id=user_id,
+        month=month,
+        year=year,
+    )
+
+    context = ContextBuilder.build(tool_results)
+
+    if not context.strip():
+        context = (
+            "No financial information "
+            "could be collected."
+        )
+   
+    return AIService.agent.handle_query(
+        question=question,
+        context=context,
+    )

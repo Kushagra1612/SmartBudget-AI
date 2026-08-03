@@ -1,7 +1,7 @@
 from app.ai.tools.budget_tool import BudgetTool
 from app.ai.tools.dashboard_tool import DashboardTool
 from app.ai.tools.spending_tool import SpendingTool
-
+from app.ai.tools.goal_tool import GoalTool
 
 class ToolRegistry:
     """
@@ -15,6 +15,7 @@ class ToolRegistry:
             DashboardTool.name: DashboardTool(),
             BudgetTool.name: BudgetTool(),
             SpendingTool.name: SpendingTool(),
+            GoalTool.name: GoalTool(),
         }
 
     def get(self, tool_name: str):

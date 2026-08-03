@@ -98,4 +98,39 @@ SPENDING
 """
             )
 
+        # -----------------------------
+        # Financial Goals
+        # -----------------------------
+        goals = tool_results.get("goal")
+
+        if goals and not isinstance(goals, dict):
+
+            goal_text = ""
+
+            for goal in goals:
+
+                goal_text += (
+                    f"""
+Goal: {goal['title']}
+Target Amount: ₹{goal['target_amount']}
+Current Amount: ₹{goal['current_amount']}
+Remaining: ₹{goal['remaining']}
+Progress: {goal['progress']}%
+Target Date: {goal['target_date']}
+Days Left: {goal['days_left']}
+Required Monthly Savings: ₹{goal['monthly_required']}
+Status: {goal['status']}
+------------------------------------
+"""
+                )
+
+            sections.append(
+                f"""
+========================
+FINANCIAL GOALS
+========================
+{goal_text}
+"""
+            )
+
         return "\n".join(sections)
