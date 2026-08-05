@@ -1,29 +1,31 @@
-import { deleteGoal } from "../../api/goals";
+import { deleteBudget } from "../../api/budget";
 
-export default function GoalCard({
-    goal,
-    onDelete,
+export default function BudgetCard({
+    budget,
     onEdit,
+    onDelete,
 }) {
 
     const percentage = Math.min(
-        (goal.current_amount / goal.target_amount) * 100,
+        budget.utilization_percentage,
         100,
     );
 
     async function handleDelete() {
 
-        if (!confirm("Delete this goal?")) return;
+        if (!confirm("Delete this budget?")) {
+            return;
+        }
 
         try {
 
-            await deleteGoal(goal.id);
+            await deleteBudget(budget.id);
 
-            onDelete(goal.id);
+            onDelete(budget.id);
 
         } catch {
 
-            alert("Failed to delete goal.");
+            alert("Failed to delete budget.");
 
         }
 
@@ -34,17 +36,17 @@ export default function GoalCard({
         <div className="bg-white rounded-xl shadow p-6">
 
             <h2 className="text-xl font-bold">
-                {goal.title}
+                {budget.category}
             </h2>
 
             <p className="mt-3">
-                ₹{goal.current_amount} / ₹{goal.target_amount}
+                ₹{budget.spent} / ₹{budget.monthly_limit}
             </p>
 
             <div className="w-full h-3 bg-gray-200 rounded-full mt-4">
 
                 <div
-                    className="bg-green-500 h-3 rounded-full"
+                    className="bg-blue-500 h-3 rounded-full"
                     style={{
                         width: `${percentage}%`,
                     }}
@@ -56,14 +58,14 @@ export default function GoalCard({
                 {percentage.toFixed(0)}%
             </p>
 
-            <p className="mt-3 text-sm">
-                Target: {goal.target_date}
+            <p className="mt-3">
+                Remaining: ₹{budget.remaining}
             </p>
 
-            <div className="flex gap-3 mt-5">
+            <div className="flex gap-3 mt-6">
 
                 <button
-                    onClick={() => onEdit(goal)}
+                    onClick={() => onEdit(budget)}
                     className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg"
                 >
                     Edit

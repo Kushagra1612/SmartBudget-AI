@@ -1,6 +1,14 @@
 import { Search } from "lucide-react";
+import { TRANSACTION_CATEGORIES } from "../../constants/categories";
 
-export default function TransactionFilters() {
+export default function TransactionFilters({
+    search,
+    setSearch,
+    category,
+    setCategory,
+    type,
+    setType,
+}) {
 
     return (
 
@@ -20,6 +28,8 @@ export default function TransactionFilters() {
                 />
 
                 <input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
                     placeholder="Search transactions..."
                     className="
                         w-full
@@ -35,15 +45,50 @@ export default function TransactionFilters() {
             </div>
 
             <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
                 className="px-4 rounded-xl border"
             >
-                <option>All Categories</option>
+
+                <option value="">
+                    All Categories
+                </option>
+
+                {TRANSACTION_CATEGORIES.map((category) => (
+
+                    <option
+                        key={category}
+                        value={category}
+                    >
+                        {category}
+                    </option>
+
+                ))}
+
             </select>
 
             <select
+                value={type}
+                onChange={(e) => setType(e.target.value)}
                 className="px-4 rounded-xl border"
             >
-                <option>All Types</option>
+
+                <option value="">
+                    All Types
+                </option>
+
+                <option value="Income">
+                    Income
+                </option>
+
+                <option value="Expense">
+                    Expense
+                </option>
+
+                <option value="Transfer">
+                    Transfer
+                </option>
+
             </select>
 
         </div>

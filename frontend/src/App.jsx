@@ -5,7 +5,8 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
 import Goals from "./pages/Goals";
-//import Budget from "./pages/Budget";
+import Budget from "./pages/Budget";
+import UploadStatement from "./pages/UploadStatement";
 
 export default function App() {
 
@@ -33,13 +34,17 @@ export default function App() {
                 element={<Transactions />}
             />
             <Route
+                path="/upload"
+                element={<UploadStatement />}
+            />
+            <Route
                 path="/goals"
                 element={<Goals />}
             />
-            {/* <Route
+            <Route
                 path="/budget"
                 element={<Budget />}
-            /> */}
+            />
 
             <Route
                 path="*"

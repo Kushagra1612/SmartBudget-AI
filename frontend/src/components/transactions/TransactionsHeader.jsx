@@ -1,10 +1,13 @@
-import { Plus } from "lucide-react";
+import { Upload } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function TransactionsHeader() {
 
+    const navigate = useNavigate();
+
     return (
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-8">
 
             <div>
 
@@ -13,12 +16,13 @@ export default function TransactionsHeader() {
                 </h1>
 
                 <p className="text-gray-500 mt-2">
-                    Track every income and expense.
+                    View and analyze all transactions imported from your bank statements.
                 </p>
 
             </div>
 
             <button
+                onClick={() => navigate("/upload")}
                 className="
                     flex items-center gap-2
                     bg-[var(--primary)]
@@ -31,9 +35,9 @@ export default function TransactionsHeader() {
                 "
             >
 
-                <Plus size={18}/>
+                <Upload size={18} />
 
-                Add Transaction
+                Upload Statement
 
             </button>
 

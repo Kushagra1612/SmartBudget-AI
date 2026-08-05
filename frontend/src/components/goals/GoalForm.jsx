@@ -1,12 +1,19 @@
 import { useState } from "react";
-import { createGoal } from "../../api/goals";
+import {
+    createGoal,
+    updateGoal,
+} from "../../api/goals";
 
-export default function GoalForm({ onGoalCreated }) {
+export default function GoalForm({
+    goal = null,
+    onGoalCreated,
+    onGoalUpdated,
+}) {
 
     const [form, setForm] = useState({
-        title: "",
-        target_amount: "",
-        target_date: "",
+        title: goal?.title ?? "",
+        target_amount: goal?.target_amount ?? "",
+        target_date: goal?.target_date ?? "",
     });
 
     const [loading, setLoading] = useState(false);
@@ -28,22 +35,42 @@ export default function GoalForm({ onGoalCreated }) {
 
             setLoading(true);
 
-            const goal = await createGoal({
-                ...form,
-                target_amount: Number(form.target_amount),
-            });
+            if (goal) {
 
-            onGoalCreated(goal);
+                const updated = await updateGoal(
+                    goal.id,
+                    {
+                        ...form,
+                        target_amount: Number(form.target_amount),
+                    }
+                );
 
-            setForm({
-                title: "",
-                target_amount: "",
-                target_date: "",
-            });
+                onGoalUpdated(updated);
+
+            } else {
+
+                const created = await createGoal({
+                    ...form,
+                    target_amount: Number(form.target_amount),
+                });
+
+                onGoalCreated(created);
+
+                setForm({
+                    title: "",
+                    target_amount: "",
+                    target_date: "",
+                });
+
+            }
 
         } catch (err) {
 
-            alert("Failed to create goal.");
+            alert(
+                goal
+                    ? "Failed to update goal."
+                    : "Failed to create goal."
+            );
 
         } finally {
 
@@ -94,7 +121,9 @@ export default function GoalForm({ onGoalCreated }) {
                 disabled={loading}
                 className="bg-blue-600 text-white px-6 py-3 rounded-lg"
             >
-                {loading ? "Creating..." : "Create Goal"}
+                {loading
+                    ? (goal ? "Updating..." : "Creating...")
+                    : (goal ? "Update Goal" : "Create Goal")}
             </button>
 
         </form>

@@ -15,6 +15,7 @@ export default function Goals() {
 
     const [goalList, setGoalList] = useState([]);
     const [showForm, setShowForm] = useState(false);
+    const [editingGoal, setEditingGoal] = useState(null);
 
     useEffect(() => {
         setGoalList(goals);
@@ -37,6 +38,25 @@ export default function Goals() {
 
     }
 
+    function editGoal(goal) {
+
+        setEditingGoal(goal);
+        setShowForm(true);
+
+    }
+
+    function updateExistingGoal(updatedGoal) {
+
+        setGoalList((prev) =>
+            prev.map((goal) =>
+                goal.id === updatedGoal.id
+                    ? updatedGoal
+                    : goal
+            )
+        );
+
+    }
+
     if (loading) {
         return <p>Loading goals...</p>;
     }
@@ -56,7 +76,12 @@ export default function Goals() {
                 </h1>
 
                 <button
-                    onClick={() => setShowForm(true)}
+                    onClick={() => {
+
+                        setEditingGoal(null);
+                        setShowForm(true);
+
+                    }}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg transition"
                 >
                     + Add Goal
@@ -67,9 +92,19 @@ export default function Goals() {
             {showForm && (
 
                 <GoalForm
+                    goal={editingGoal}
                     onGoalCreated={(goal) => {
 
                         addGoal(goal);
+
+                        setShowForm(false);
+
+                    }}
+                    onGoalUpdated={(goal) => {
+
+                        updateExistingGoal(goal);
+
+                        setEditingGoal(null);
 
                         setShowForm(false);
 
@@ -102,6 +137,7 @@ export default function Goals() {
                             key={goal.id}
                             goal={goal}
                             onDelete={removeGoal}
+                            onEdit={editGoal}
                         />
 
                     ))}
