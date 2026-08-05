@@ -32,9 +32,17 @@ export default function LoginForm() {
 
             const response = await login(form);
 
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("token_type"); 
+            
             localStorage.setItem(
-                "token",
+                "access_token",
                 response.data.access_token
+            );
+
+            localStorage.setItem(
+                "token_type",
+                response.data.token_type
             );
 
             navigate("/dashboard");

@@ -6,11 +6,9 @@ export default function MainLayout({ children }) {
 
         <div className="min-h-screen bg-[var(--bg)]">
 
-            <main className="max-w-7xl mx-auto px-8 py-10 pb-32">
-
+             <main className="w-full min-h-screen px-10 py-8 pb-32">
                 {children}
-
-            </main>
+             </main>
 
             <FloatingDock />
 

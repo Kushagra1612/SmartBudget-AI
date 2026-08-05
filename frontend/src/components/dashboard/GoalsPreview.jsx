@@ -1,135 +1,137 @@
-import { Target, CalendarDays } from "lucide-react";
 import Card from "../common/Card";
-import Button from "../common/Button";
+import useGoals from "../../hooks/useGoals";
 
-export default function GoalsPreview({
-    title = "Gaming Laptop",
-    progress = 68,
-    current = "68,000",
-    target = "100,000",
-    remaining = "32,000",
-    recommendation = "Save ₹8,000/month to stay on track.",
-}) {
+export default function GoalsPreview() {
+
+    const {
+        goals,
+        loading,
+        error,
+    } = useGoals();
+
+    if (loading) {
+        return (
+            <Card>
+                Loading goals...
+            </Card>
+        );
+    }
+
+    if (error) {
+        return (
+            <Card>
+                Unable to load goals.
+            </Card>
+        );
+    }
+
     return (
+
         <Card>
 
-            <div className="flex items-center justify-between">
+            <div className="flex justify-between items-center">
 
-                <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-bold">
+                    Goals
+                </h2>
 
-                    <div className="w-12 h-12 rounded-xl bg-[var(--accent)] flex items-center justify-center">
+                <button className="text-sm text-[var(--primary)]">
 
-                        <Target className="text-white" />
+                    View All
 
-                    </div>
-
-                    <div>
-
-                        <h2 className="text-xl font-bold">
-                            {title}
-                        </h2>
-
-                        <p className="text-gray-500">
-                            Financial Goal
-                        </p>
-
-                    </div>
-
-                </div>
-
-                <span className="font-bold text-[var(--primary)]">
-                    {progress}%
-                </span>
+                </button>
 
             </div>
 
-            <div className="mt-8">
+            <div className="mt-6 space-y-6">
 
-                <div className="h-3 rounded-full bg-gray-200">
-
-                    <div
-                        className="h-full rounded-full bg-[var(--primary)]"
-                        style={{
-                            width: `${progress}%`,
-                        }}
-                    />
-
-                </div>
-
-            </div>
-
-            <div className="grid grid-cols-2 gap-6 mt-8">
-
-                <div>
+                {goals.length === 0 && (
 
                     <p className="text-gray-500">
-                        Saved
+
+                        No goals created yet.
+
                     </p>
 
-                    <h3 className="text-2xl font-bold">
-                        ₹{current}
-                    </h3>
+                )}
 
-                </div>
+                {goals.slice(0, 3).map(goal => {
 
-                <div>
+                    const progress = Math.min(
+                        (Number(goal.current_amount) /
+                            Number(goal.target_amount)) * 100,
+                        100
+                    );
 
-                    <p className="text-gray-500">
-                        Target
-                    </p>
+                    return (
 
-                    <h3 className="text-2xl font-bold">
-                        ₹{target}
-                    </h3>
+                        <div key={goal.id}>
 
-                </div>
+                            <div className="flex justify-between">
 
-            </div>
+                                <div>
 
-            <div className="mt-8 flex items-center gap-3">
+                                    <h3 className="font-semibold">
 
-                <CalendarDays
-                    size={20}
-                    className="text-gray-400"
-                />
+                                        {goal.title}
 
-                <span>
+                                    </h3>
 
-                    Remaining:
-                    <strong>
-                        {" "}₹{remaining}
-                    </strong>
+                                    <p className="text-sm text-gray-500">
 
-                </span>
+                                        ₹{Number(goal.current_amount).toLocaleString("en-IN")}
+                                        {" / "}
+                                        ₹{Number(goal.target_amount).toLocaleString("en-IN")}
 
-            </div>
+                                    </p>
 
-            <div className="mt-8 rounded-2xl bg-indigo-50 p-5">
+                                </div>
 
-                <p className="font-semibold text-[var(--primary)]">
+                                <span className="font-semibold">
 
-                    🤖 AI Recommendation
+                                    {progress.toFixed(0)}%
 
-                </p>
+                                </span>
 
-                <p className="mt-2 text-gray-600">
+                            </div>
 
-                    {recommendation}
+                            <div className="mt-3 h-2 bg-gray-200 rounded-full">
 
-                </p>
+                                <div
+                                    className="h-2 rounded-full bg-[var(--primary)] transition-all duration-500"
+                                    style={{
+                                        width: `${progress}%`,
+                                    }}
+                                />
 
-            </div>
+                            </div>
 
-            <div className="mt-8">
+                            <div className="flex justify-between mt-2 text-xs text-gray-500">
 
-                <Button className="w-full">
+                                <span>
 
-                    View Goal
+                                    {goal.status}
 
-                </Button>
+                                </span>
+
+                                <span>
+
+                                    {goal.target_date}
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    );
+
+                })}
 
             </div>
 
         </Card>
+
     );
+
 }

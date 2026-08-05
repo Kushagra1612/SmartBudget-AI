@@ -9,71 +9,104 @@ import GoalsPreview from "../components/dashboard/GoalsPreview";
 import SpendingOverview from "../components/dashboard/SpendingOverview";
 import RecentActivity from "../components/dashboard/RecentActivity";
 
+import useDashboard from "../hooks/useDashboard";
+
 export default function Dashboard() {
+
+    const currentDate = new Date();
+
+    const {
+        dashboard,
+        loading,
+        error,
+    } = useDashboard(
+        currentDate.getMonth() + 1,
+        currentDate.getFullYear(),
+    );
+
+    if (loading) {
+    return (
+        <MainLayout>
+            <div className="p-10 text-center text-gray-500">
+                Loading dashboard...
+            </div>
+        </MainLayout>
+    );
+}
+
+if (error) {
+    return (
+        <MainLayout>
+            <div className="p-10 text-center text-red-500">
+                Error loading dashboard.
+            </div>
+        </MainLayout>
+    );
+}
 
     return (
 
         <MainLayout>
 
             <GreetingHeader />
-<DashboardGrid>
 
-    <div className="col-span-4">
+            <DashboardGrid>
 
-        <FinancialHealthCard />
+                <div className="col-span-4">
+                    <FinancialHealthCard
+                        score={dashboard.analytics.financial_score.score}
+                        grade={dashboard.analytics.financial_score.grade}
+                        status={dashboard.analytics.financial_score.status}
+                    />
 
-    </div>
+                </div>
 
-    <div className="col-span-8 grid grid-cols-3 gap-6">
+                <div className="col-span-8 grid grid-cols-3 gap-6">
 
-        <CashFlowCard
-            title="Income"
-            amount="55,000"
-            change="+12%"
-        />
+                    <CashFlowCard
+    title="Income"
+    amount={dashboard.monthly_income}
+    change="+12%"
+/>
 
-        <CashFlowCard
-            title="Expenses"
-            amount="31,000"
-            change="-8%"
-            positive={false}
-        />
+<CashFlowCard
+    title="Expenses"
+    amount={dashboard.monthly_expenses}
+    change="-8%"
+    positive={false}
+/>
 
-        <CashFlowCard
-            title="Savings"
-            amount="24,000"
-            change="+20%"
-        />
+<CashFlowCard
+    title="Savings"
+    amount={dashboard.savings}
+    change="+20%"
+/>
 
-        <div className="col-span-3">
+                    <div className="col-span-3">
+                        <AIPulseCard />
+                    </div>
 
-            <AIPulseCard />
+                </div>
 
-        </div>
+                <div className="col-span-5">
+                    <GoalsPreview />
+                </div>
 
-    </div>
+                <div className="col-span-7">
+                   <SpendingOverview
+                        categories={dashboard.analytics.spending.categories}
+                   />
+                </div>
 
-    <div className="col-span-5">
+                <div className="col-span-12">
+                    <RecentActivity
+                         transactions={dashboard.recent_transactions}
+                    />
+                </div>
 
-        <GoalsPreview />
-    </div>
-
-    <div className="col-span-7">
-
-    <SpendingOverview />
-
-</div>
-
-<div className="col-span-12">
-
-    <RecentActivity />
-
-</div>
-
-</DashboardGrid>
+            </DashboardGrid>
 
         </MainLayout>
 
     );
-
 }

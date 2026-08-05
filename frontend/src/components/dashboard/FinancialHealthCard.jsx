@@ -1,6 +1,10 @@
 import Card from "../common/Card";
 
-export default function FinancialHealthCard() {
+export default function FinancialHealthCard({
+    score,
+    grade,
+    status,
+}) {
     return (
         <Card className="flex flex-col items-center text-center">
 
@@ -13,21 +17,27 @@ export default function FinancialHealthCard() {
                 <div>
 
                     <h1 className="text-5xl font-bold">
-                        87
+                        {score}
                     </h1>
 
                     <p className="text-sm text-gray-500">
-                        Excellent
+                        {grade}
                     </p>
 
                 </div>
 
             </div>
 
-            <p className="mt-6 text-green-600 font-semibold">
-
-                +5 since last month
-
+            <p
+                className={`mt-6 font-semibold ${
+                    score >= 80
+                        ? "text-green-600"
+                        : score >= 60
+                        ? "text-yellow-500"
+                        : "text-red-500"
+                }`}
+            >
+                {status}
             </p>
 
         </Card>
