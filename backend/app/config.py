@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     # --- JWT auth (Phase 3) --------------------------------------------------
     SECRET_KEY: str = "change-this-secret-key"
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 43200
 
     # --- Gemini LLM (Phase 7) -------------------------------------------------
     GEMINI_API_KEY: str = ""

@@ -18,3 +18,7 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     response: str
+
+class AIPulseResponse(BaseModel):
+    message: str
+    status: str

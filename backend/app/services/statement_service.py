@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy.orm import Session
 
 from app.models.statement import Statement
@@ -10,13 +12,15 @@ class StatementService:
     def create_statement(
         db: Session,
         *,
-        user_id,
+        user_id: UUID,
         filename: str,
         original_filename: str,
         bank: str,
         parser_method: str,
         pages: int,
         confidence: float,
+        month: int,
+        year: int,
     ) -> Statement:
         """
         Create and save a bank statement.
@@ -30,6 +34,8 @@ class StatementService:
             parser_method=parser_method,
             pages=pages,
             confidence=confidence,
+            month=month,
+            year=year,
         )
 
         return StatementRepository.create(
@@ -40,7 +46,7 @@ class StatementService:
     @staticmethod
     def get_statement(
         db: Session,
-        statement_id,
+        statement_id: UUID,
     ) -> Statement | None:
         """
         Retrieve a statement by ID.
@@ -54,7 +60,7 @@ class StatementService:
     @staticmethod
     def list_user_statements(
         db: Session,
-        user_id,
+        user_id: UUID,
     ) -> list[Statement]:
         """
         Retrieve all statements uploaded by a user.
@@ -66,9 +72,23 @@ class StatementService:
         )
 
     @staticmethod
+    def get_latest_statement(
+        db: Session,
+        user_id: UUID,
+    ) -> Statement | None:
+        """
+        Retrieve the latest uploaded statement.
+        """
+
+        return StatementRepository.get_latest_statement(
+            db=db,
+            user_id=user_id,
+        )
+
+    @staticmethod
     def delete_statement(
         db: Session,
-        statement_id,
+        statement_id: UUID,
     ) -> bool:
         """
         Delete a statement if it exists.
@@ -92,7 +112,7 @@ class StatementService:
     @staticmethod
     def count_user_statements(
         db: Session,
-        user_id,
+        user_id: UUID,
     ) -> int:
         """
         Count total uploaded statements for a user.

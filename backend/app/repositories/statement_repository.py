@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy.orm import Session
 
 from app.models.statement import Statement
@@ -23,7 +25,7 @@ class StatementRepository:
     @staticmethod
     def get_by_id(
         db: Session,
-        statement_id,
+        statement_id: UUID,
     ) -> Statement | None:
         """
         Get a statement by its ID.
@@ -40,7 +42,7 @@ class StatementRepository:
     @staticmethod
     def get_by_user(
         db: Session,
-        user_id,
+        user_id: UUID,
     ) -> list[Statement]:
         """
         Get all statements uploaded by a user.
@@ -55,6 +57,27 @@ class StatementRepository:
                 Statement.uploaded_at.desc(),
             )
             .all()
+        )
+
+    @staticmethod
+    def get_latest_statement(
+        db: Session,
+        *,
+        user_id: UUID,
+    ) -> Statement | None:
+        """
+        Get the latest uploaded statement for a user.
+        """
+
+        return (
+            db.query(Statement)
+            .filter(
+                Statement.user_id == user_id,
+            )
+            .order_by(
+                Statement.uploaded_at.desc(),
+            )
+            .first()
         )
 
     @staticmethod
@@ -74,7 +97,7 @@ class StatementRepository:
     @staticmethod
     def count_by_user(
         db: Session,
-        user_id,
+        user_id: UUID,
     ) -> int:
         """
         Count uploaded statements for a user.

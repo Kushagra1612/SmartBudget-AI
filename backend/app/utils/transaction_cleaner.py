@@ -1,5 +1,5 @@
 import re
-from datetime import datetime
+from datetime import datetime, date
 
 
 class TransactionCleaner:
@@ -41,7 +41,12 @@ class TransactionCleaner:
         return text.strip().upper()
 
     @staticmethod
-    def clean_date(date_string):
+    def clean_date(date_string) -> date | None:
+
+        if date_string is None:
+            return None
+
+        date_string = str(date_string).strip()
 
         formats = [
 
@@ -58,10 +63,10 @@ class TransactionCleaner:
 
                 return datetime.strptime(
                     date_string,
-                    fmt
-                ).strftime("%Y-%m-%d")
+                    fmt,
+                ).date()
 
             except Exception:
                 continue
 
-        return date_string
+        return None

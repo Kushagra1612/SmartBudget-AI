@@ -83,7 +83,6 @@ class DashboardRepository:
                 Budget.user_id == user_id,
                 Budget.month == month,
                 Budget.year == year,
-                Budget.is_deleted.is_(False),
             )
             .count()
         )

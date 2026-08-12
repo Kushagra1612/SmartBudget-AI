@@ -16,9 +16,11 @@ class UserCreate(BaseModel):
     )
 
 
+from uuid import UUID
+
 class UserResponse(BaseModel):
 
-    id: str
+    id: UUID
 
     full_name: str
 

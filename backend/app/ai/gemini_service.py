@@ -25,16 +25,44 @@ class GeminiService:
         Send a prompt to Gemini and return the generated text.
         """
 
-        response = self.client.models.generate_content(
-            model=self.model,
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                system_instruction=SYSTEM_PROMPT,
-                temperature=0.3,
-            ),
-        )
+        try:
 
-        if response.text:
-            return response.text.strip()
+            response = self.client.models.generate_content(
+                model=self.model,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=SYSTEM_PROMPT,
+                    temperature=0.3,
+                ),
+            )
 
-        return "No response generated."
+            if response.text:
+                return response.text.strip()
+
+            return "No response generated."
+
+        except Exception as e:
+
+            print("=" * 60)
+            print("GEMINI ERROR")
+            print(type(e).__name__)
+            print(e)
+            print("=" * 60)
+
+            error_message = str(e)
+
+            if (
+                "RESOURCE_EXHAUSTED" in error_message
+                or "429" in error_message
+                or "quota" in error_message.lower()
+            ):
+                return (
+                    "⚠️ AI service is temporarily unavailable because the "
+                    "Gemini API quota has been exceeded. "
+                    "Please try again in a few minutes."
+                )
+
+            return (
+                "⚠️ Unable to generate AI response at the moment. "
+                "Please try again later."
+            )

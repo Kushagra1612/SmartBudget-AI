@@ -1,21 +1,45 @@
-from fastapi import APIRouter, Depends
+from typing import Optional
+
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
 from app.dependencies.auth import get_current_user
 from app.models.user import User
+
 from app.schemas.ai_schema import (
     ChatRequest,
     ChatResponse,
     FinancialAdviceRequest,
     FinancialAdviceResponse,
+    AIPulseResponse,
 )
+
 from app.services.ai_service import AIService
 
 router = APIRouter(
     prefix="/ai",
     tags=["AI"],
 )
+
+
+@router.get(
+    "/pulse",
+    response_model=AIPulseResponse,
+)
+def get_ai_pulse(
+    month: Optional[int] = Query(default=None),
+    year: Optional[int] = Query(default=None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+
+    return AIService.get_dashboard_pulse(
+        db=db,
+        user_id=current_user.id,
+        month=month,
+        year=year,
+    )
 
 
 @router.post(

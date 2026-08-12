@@ -61,6 +61,16 @@ class Statement(Base):
         nullable=True,
     )
 
+    month = Column(
+        Integer,
+        nullable=False,
+    )
+
+    year = Column(
+        Integer,
+        nullable=False,
+    )
+
     uploaded_at = Column(
         DateTime(timezone=True),
         server_default=func.now(),

@@ -1,7 +1,6 @@
 import uuid
 
 from sqlalchemy import (
-    Boolean,
     Column,
     DateTime,
     ForeignKey,
@@ -57,12 +56,6 @@ class Budget(Base):
         Integer,
         nullable=False,
         index=True,
-    )
-
-    is_deleted = Column(
-        Boolean,
-        default=False,
-        nullable=False,
     )
 
     created_at = Column(

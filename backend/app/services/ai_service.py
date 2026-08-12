@@ -9,10 +9,10 @@ from app.ai.tool_executor import ToolExecutor
 from app.repositories.dashboard_repository import DashboardRepository
 from app.services.analytics_service import AnalyticsService
 from app.services.budget_service import BudgetService
-
+from app.services.statement_service import StatementService
 
 class AIService:
-   
+
     planner = Planner()
     executor = ToolExecutor()
     agent = FinancialAgent()
@@ -22,10 +22,21 @@ class AIService:
         db: Session,
         *,
         user_id: UUID,
-        month: int,
-        year: int,
+        month: int | None = None,
+        year: int | None = None,
     ):
-       
+
+        statement = StatementService.get_latest_statement(
+            db=db,
+            user_id=user_id,
+        )
+
+        if statement is not None:
+            month = statement.month
+            year = statement.year
+
+        elif month is None or year is None:
+            raise ValueError("No uploaded statement found.")
 
         income = DashboardRepository.get_monthly_income(
             db=db,
@@ -70,6 +81,31 @@ class AIService:
         )
 
     @staticmethod
+    def get_dashboard_pulse(
+        db: Session,
+        *,
+        user_id: UUID,
+        month: int,
+        year: int,
+    ):
+
+        analytics = AIService._generate_analytics(
+            db=db,
+            user_id=user_id,
+            month=month,
+            year=year,
+        )
+
+        message = AIService.agent.generate_advice(
+            analytics=analytics,
+        )
+
+        return {
+            "message": message.split("\n")[0],
+            "status": analytics.financial_score.status,
+        }
+
+    @staticmethod
     def get_financial_advice(
         db: Session,
         *,
@@ -77,7 +113,7 @@ class AIService:
         month: int,
         year: int,
     ) -> str:
-       
+
         analytics = AIService._generate_analytics(
             db=db,
             user_id=user_id,
@@ -89,46 +125,45 @@ class AIService:
             analytics=analytics,
         )
 
-@staticmethod
-def chat(
-    db: Session,
-    *,
-    user_id: UUID,
-    month: int,
-    year: int,
-    question: str,
-) -> str:
+    @staticmethod
+    def chat(
+        db: Session,
+        *,
+        user_id: UUID,
+        month: int,
+        year: int,
+        question: str,
+    ) -> str:
 
-    try:
+        try:
 
-        history = AIService.agent.memory.get_recent_history()
+            history = AIService.agent.memory.get_recent_history()
 
-        tools = AIService.planner.plan(
+            tools = AIService.planner.plan(
+                question=question,
+                history=history,
+            )
+
+        except Exception:
+
+            tools = ["dashboard"]
+
+        tool_results = AIService.executor.execute(
+            tools=tools,
+            db=db,
+            user_id=user_id,
+            month=month,
+            year=year,
+        )
+
+        context = ContextBuilder.build(tool_results)
+
+        if not context.strip():
+            context = (
+                "No financial information could be collected."
+            )
+
+        return AIService.agent.handle_query(
             question=question,
-            history=history,
+            context=context,
         )
-
-    except Exception:
-
-        tools = ["dashboard"]
-
-    tool_results = AIService.executor.execute(
-        tools=tools,
-        db=db,
-        user_id=user_id,
-        month=month,
-        year=year,
-    )
-
-    context = ContextBuilder.build(tool_results)
-
-    if not context.strip():
-        context = (
-            "No financial information "
-            "could be collected."
-        )
-   
-    return AIService.agent.handle_query(
-        question=question,
-        context=context,
-    )

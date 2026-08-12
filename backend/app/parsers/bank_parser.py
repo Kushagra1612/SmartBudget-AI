@@ -19,6 +19,7 @@ class BankStatementParser:
         """
 
         try:
+
             tables = camelot.read_pdf(
                 pdf_path,
                 pages="all",
@@ -37,13 +38,15 @@ class BankStatementParser:
                 if df.empty:
                     continue
 
-                # Detect header row
+                # Detect header
                 df = HeaderDetector.detect(df)
 
-                # Normalize column names
+                # Normalize columns
                 df = ParserHelper.normalize_columns(df)
 
-                # Convert to list of dictionaries
+                # Remove duplicate columns
+                df = df.loc[:, ~df.columns.duplicated()]
+
                 records = df.to_dict(orient="records")
 
                 for row in records:
@@ -72,18 +75,21 @@ class BankStatementParser:
 
                     }
 
-                    # Skip blank rows
+                    # Skip invalid date
+                    if transaction["date"] is None:
+                        continue
+
+                    # Skip rows without description and amount
                     if (
-                        transaction["date"] == ""
-                        and transaction["description"] == ""
+                        transaction["description"] == ""
                         and transaction["debit"] == 0
                         and transaction["credit"] == 0
-                        and transaction["balance"] == 0
                     ):
                         continue
 
-                    # NEW: Categorize transaction
-                    transaction = CategoryEngine.categorize(transaction)
+                    transaction = CategoryEngine.categorize(
+                        transaction
+                    )
 
                     cleaned_transactions.append(transaction)
 
@@ -95,7 +101,8 @@ class BankStatementParser:
                 }
 
         except Exception as e:
-            print(f"Camelot parsing failed: {e}")
+
+            print("Camelot parsing failed:", e)
 
         return None
 

@@ -1,10 +1,11 @@
+from datetime import date
 from typing import List
 
 from pydantic import BaseModel
 
 
 class TransactionResponse(BaseModel):
-    date: str
+    date: date | None
     description: str
     debit: float
     credit: float

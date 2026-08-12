@@ -17,10 +17,7 @@ class BudgetRepository:
     def get_by_id(db: Session, budget_id: UUID) -> Budget | None:
         return (
             db.query(Budget)
-            .filter(
-                Budget.id == budget_id,
-                Budget.is_deleted.is_(False),
-            )
+            .filter(Budget.id == budget_id)
             .first()
         )
 
@@ -40,7 +37,6 @@ class BudgetRepository:
                 Budget.category == category,
                 Budget.month == month,
                 Budget.year == year,
-                Budget.is_deleted.is_(False),
             )
             .first()
         )
@@ -59,7 +55,6 @@ class BudgetRepository:
                 Budget.user_id == user_id,
                 Budget.month == month,
                 Budget.year == year,
-                Budget.is_deleted.is_(False),
             )
             .order_by(Budget.category)
             .all()
@@ -73,7 +68,7 @@ class BudgetRepository:
 
     @staticmethod
     def soft_delete(db: Session, budget: Budget) -> None:
-        budget.is_deleted = True
+        db.delete(budget)
         db.commit()
 
     @staticmethod
@@ -92,7 +87,6 @@ class BudgetRepository:
                 Budget.category == category,
                 Budget.month == month,
                 Budget.year == year,
-                Budget.is_deleted.is_(False),
             )
             .first()
             is not None

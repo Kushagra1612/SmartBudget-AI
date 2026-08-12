@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
@@ -20,11 +18,19 @@ router = APIRouter(
     response_model=DashboardResponse,
 )
 def get_dashboard(
-    month: int = Query(default=datetime.now().month, ge=1, le=12),
-    year: int = Query(default=datetime.now().year, ge=2000),
+    month: int | None = Query(
+        default=None,
+        ge=1,
+        le=12,
+    ),
+    year: int | None = Query(
+        default=None,
+        ge=2000,
+    ),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+
     return DashboardService.get_dashboard(
         db=db,
         user_id=current_user.id,

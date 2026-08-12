@@ -25,7 +25,7 @@ class BudgetService:
             raise ValueError("Monthly limit must be greater than 0.")
 
         if BudgetRepository.exists(
-            db,
+            db=db,
             user_id=user_id,
             category=category,
             month=month,
@@ -51,7 +51,10 @@ class BudgetService:
         *,
         budget_id: UUID,
     ) -> Budget | None:
-        return BudgetRepository.get_by_id(db, budget_id)
+        return BudgetRepository.get_by_id(
+            db,
+            budget_id,
+        )
 
     @staticmethod
     def get_user_budgets(
@@ -62,7 +65,7 @@ class BudgetService:
         year: int,
     ) -> list[Budget]:
         return BudgetRepository.get_user_budgets(
-            db,
+            db=db,
             user_id=user_id,
             month=month,
             year=year,
@@ -73,10 +76,14 @@ class BudgetService:
         db: Session,
         *,
         budget_id: UUID,
+        category: str,
         monthly_limit: float,
     ) -> Budget:
 
-        budget = BudgetRepository.get_by_id(db, budget_id)
+        budget = BudgetRepository.get_by_id(
+            db=db,
+            budget_id=budget_id,
+        )
 
         if budget is None:
             raise ValueError("Budget not found.")
@@ -84,9 +91,29 @@ class BudgetService:
         if monthly_limit <= 0:
             raise ValueError("Monthly limit must be greater than 0.")
 
+        existing_budget = BudgetRepository.get_budget(
+            db=db,
+            user_id=budget.user_id,
+            category=category,
+            month=budget.month,
+            year=budget.year,
+        )
+
+        if (
+            existing_budget is not None
+            and existing_budget.id != budget.id
+        ):
+            raise ValueError(
+                "Budget already exists for this category and month."
+            )
+
+        budget.category = category.strip()
         budget.monthly_limit = monthly_limit
 
-        return BudgetRepository.update(db, budget)
+        return BudgetRepository.update(
+            db,
+            budget,
+        )
 
     @staticmethod
     def delete_budget(
@@ -95,12 +122,18 @@ class BudgetService:
         budget_id: UUID,
     ) -> None:
 
-        budget = BudgetRepository.get_by_id(db, budget_id)
+        budget = BudgetRepository.get_by_id(
+            db=db,
+            budget_id=budget_id,
+        )
 
         if budget is None:
             raise ValueError("Budget not found.")
 
-        BudgetRepository.soft_delete(db, budget)
+        BudgetRepository.soft_delete(
+            db=db,
+            budget=budget,
+        )
 
     @staticmethod
     def get_budget_summary(
@@ -140,6 +173,7 @@ class BudgetService:
 
             summary.append(
                 BudgetSummary(
+                    id=budget.id,
                     category=budget.category.value
                     if hasattr(budget.category, "value")
                     else budget.category,

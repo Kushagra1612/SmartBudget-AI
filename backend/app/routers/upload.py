@@ -50,27 +50,22 @@ async def upload_statement(
             detail="Only PDF files are allowed.",
         )
 
-    # Read file for validation
     contents = await file.read()
 
-    # Empty file check
     if len(contents) == 0:
         raise HTTPException(
             status_code=400,
             detail="Uploaded PDF is empty.",
         )
 
-    # File size check
     if len(contents) > MAX_FILE_SIZE:
         raise HTTPException(
             status_code=413,
             detail="PDF exceeds the maximum allowed size (10 MB).",
         )
 
-    # Reset pointer
     file.file.seek(0)
 
-    # Generate unique filename
     unique_filename = f"{uuid.uuid4()}.pdf"
 
     filepath = os.path.join(
@@ -90,10 +85,24 @@ async def upload_statement(
             file.filename,
         )
 
-        # Parse bank statement
+        # Parse statement
         result = PDFService.parse_statement(filepath)
 
-        # Create Statement record
+        transactions = result.get("transactions", [])
+
+        if not transactions:
+            raise HTTPException(
+                status_code=422,
+                detail="No transactions found in statement.",
+            )
+
+        # Get statement month/year from first transaction
+        statement_date = transactions[0]["date"]
+
+        statement_month = statement_date.month
+        statement_year = statement_date.year
+
+        # Save statement
         statement = StatementService.create_statement(
             db=db,
             user_id=current_user.id,
@@ -103,6 +112,8 @@ async def upload_statement(
             parser_method=result.get("method", "Unknown"),
             pages=result.get("pages", 1),
             confidence=result.get("confidence", 1.0),
+            month=statement_month,
+            year=statement_year,
         )
 
         logger.info(
@@ -111,12 +122,12 @@ async def upload_statement(
             current_user.id,
         )
 
-        # Save Transactions
+        # Save transactions
         saved_transactions = TransactionService.save_transactions(
             db=db,
             user_id=current_user.id,
             statement_id=statement.id,
-            parsed_transactions=result["transactions"],
+            parsed_transactions=transactions,
         )
 
         logger.info(
@@ -134,7 +145,7 @@ async def upload_statement(
             "transactions_found": len(saved_transactions),
             "message": "Statement uploaded successfully.",
             "method": statement.parser_method,
-            "transactions": result["transactions"],
+            "transactions": transactions,
         }
 
     except HTTPException:
@@ -154,9 +165,10 @@ async def upload_statement(
 
     finally:
 
-        # Delete temporary PDF
         if os.path.exists(filepath):
+
             try:
+
                 os.remove(filepath)
 
                 logger.info(

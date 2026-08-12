@@ -144,6 +144,7 @@ def update_budget(
         return BudgetService.update_budget(
             db=db,
             budget_id=budget_id,
+            category=request.category,
             monthly_limit=request.monthly_limit,
         )
     except ValueError as e:

@@ -16,7 +16,7 @@ from app.schemas.dashboard_schema import (
 )
 from app.services.analytics_service import AnalyticsService
 from app.services.budget_service import BudgetService
-
+from app.services.statement_service import StatementService
 
 class DashboardService:
 
@@ -25,9 +25,23 @@ class DashboardService:
         db: Session,
         *,
         user_id: UUID,
-        month: int,
-        year: int,
+        month: int | None = None,
+        year: int | None = None,   
     ) -> DashboardResponse:
+
+        statement = StatementService.get_latest_statement(
+            db=db,
+            user_id=user_id,
+        )
+
+        if statement is not None:
+            month = statement.month
+            year = statement.year
+
+        elif month is None or year is None:
+            raise ValueError(
+                "No uploaded statement found."
+            )
 
         income = DashboardRepository.get_monthly_income(
             db=db,

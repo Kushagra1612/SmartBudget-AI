@@ -13,6 +13,7 @@ class BudgetCreate(BaseModel):
 
 
 class BudgetUpdate(BaseModel):
+    category: str = Field(..., min_length=1, max_length=100)
     monthly_limit: Decimal = Field(..., gt=0)
 
 
@@ -25,12 +26,12 @@ class BudgetResponse(BaseModel):
     monthly_limit: Decimal
     month: int
     year: int
-    is_deleted: bool
     created_at: datetime
     updated_at: datetime
 
 
 class BudgetSummary(BaseModel):
+    id: UUID
     category: str
     monthly_limit: Decimal
     spent: Decimal

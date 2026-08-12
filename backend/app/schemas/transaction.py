@@ -1,21 +1,37 @@
-from datetime import date
-from pydantic import BaseModel
+from datetime import date, datetime
+from decimal import Decimal
+from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict
+
+from app.models.transaction import (
+    TransactionCategory,
+    TransactionType,
+)
 
 
-class TransactionCreate(BaseModel):
-    date: date
-    description: str
-    debit: float
-    credit: float
-    balance: float
+class TransactionResponse(BaseModel):
+
+    model_config = ConfigDict(
+        from_attributes=True,
+    )
+
+    id: UUID
+    amount: Decimal
+
+    debit: Decimal | None
+    credit: Decimal | None
+    balance: Decimal | None
+
     merchant: str
-    category: str
-    payment_mode: str
-    transaction_type: str
+    description: str | None
 
+    category: TransactionCategory
+    transaction_type: TransactionType
 
-class TransactionResponse(TransactionCreate):
-    id: int
+    payment_mode: str | None
 
-    class Config:
-        from_attributes = True
+    transaction_date: date
+
+    created_at: datetime
+    updated_at: datetime
