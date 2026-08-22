@@ -1,8 +1,12 @@
 import { useState } from "react";
+import { Target, IndianRupee, Calendar } from "lucide-react";
 import {
     createGoal,
     updateGoal,
 } from "../../api/goals";
+import Button from "../common/Button";
+import Input from "../common/Input";
+import Badge from "../common/Badge";
 
 export default function GoalForm({
     goal = null,
@@ -64,7 +68,7 @@ export default function GoalForm({
 
             }
 
-        } catch (err) {
+        } catch {
 
             alert(
                 goal
@@ -87,44 +91,49 @@ export default function GoalForm({
             className="space-y-4 mb-8"
         >
 
-            <input
+            {goal && (
+                <Badge color="primary">
+                    Editing {goal.title}
+                </Badge>
+            )}
+
+            <Input
                 type="text"
                 name="title"
                 placeholder="Goal Title"
                 value={form.title}
                 onChange={handleChange}
-                className="w-full border rounded-lg p-3"
+                icon={Target}
                 required
             />
 
-            <input
+            <Input
                 type="number"
                 name="target_amount"
                 placeholder="Target Amount"
                 value={form.target_amount}
                 onChange={handleChange}
-                className="w-full border rounded-lg p-3"
+                icon={IndianRupee}
                 required
             />
 
-            <input
+            <Input
                 type="date"
                 name="target_date"
                 value={form.target_date}
                 onChange={handleChange}
-                className="w-full border rounded-lg p-3"
+                icon={Calendar}
                 required
             />
 
-            <button
+            <Button
                 type="submit"
                 disabled={loading}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg"
             >
                 {loading
                     ? (goal ? "Updating..." : "Creating...")
                     : (goal ? "Update Goal" : "Create Goal")}
-            </button>
+            </Button>
 
         </form>
 

@@ -1,4 +1,8 @@
+import { useAuth } from "../../context/AuthContext";
+
 export default function GreetingHeader() {
+
+    const { user } = useAuth();
 
     const hour = new Date().getHours();
 
@@ -9,6 +13,8 @@ export default function GreetingHeader() {
 
     else if (hour < 18)
         greeting = "Good Afternoon";
+
+    const firstName = user?.full_name?.split(" ")[0];
 
     return (
 
@@ -29,7 +35,7 @@ export default function GreetingHeader() {
 
             <h1 className="mt-2 text-5xl font-bold">
 
-                {greeting} 👋
+                {greeting}{firstName ? `, ${firstName}` : ""} 👋
 
             </h1>
 

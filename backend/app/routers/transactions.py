@@ -15,7 +15,7 @@ router = APIRouter(
 
 
 @router.get(
-    "/",
+    "",
     response_model=list[TransactionResponse],
 )
 def get_transactions(

@@ -49,7 +49,7 @@ export default function RecentActivity({
 
                                 <p
                                     className={`font-bold ${
-                                        transaction.transaction_type === "EXPENSE"
+                                        transaction.transaction_type === "Expense"
                                             ? "text-red-500"
                                             : "text-green-600"
                                     }`}

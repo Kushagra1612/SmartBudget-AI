@@ -15,6 +15,7 @@ python-dotenv==1.2.2
 # Phase 3 - Authentication
  python-jose[cryptography]
  passlib[bcrypt]
+ bcrypt==4.0.1
  python-multipart
  email-validator
 
@@ -37,13 +38,11 @@ python-dotenv==1.2.2
  joblib
 
 # Phase 8 - LangGraph agents
-# langgraph
-# langchain
+ langgraph
 
 # Phase 9 - Gemini LLM
-# langchain-google-genai
-# google-generativeai
+ google-genai
 
 # Phase 10 - Testing
-# pytest
-# httpx
+ pytest
+ httpx

@@ -1,47 +1,43 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getBudgetSummary } from "../api/budget";
 
 export default function useBudgetSummary() {
-
-    const currentDate = new Date();
 
     const [summary, setSummary] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
+    const refetch = useCallback(async () => {
 
-        async function fetchSummary() {
+        try {
 
-            try {
+            const data = await getBudgetSummary();
 
-                const data = await getBudgetSummary(
-                    currentDate.getMonth() + 1,
-                    currentDate.getFullYear(),
-                );
+            setSummary(data);
 
-                setSummary(data);
+        } catch (err) {
 
-            } catch (err) {
+            setError(err);
 
-                setError(err);
+        } finally {
 
-            } finally {
-
-                setLoading(false);
-
-            }
+            setLoading(false);
 
         }
 
-        fetchSummary();
-
     }, []);
+
+    useEffect(() => {
+
+        refetch();
+
+    }, [refetch]);
 
     return {
         summary,
         loading,
         error,
+        refetch,
     };
 
 }

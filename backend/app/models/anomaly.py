@@ -31,6 +31,14 @@ class Anomaly(Base):
         index=True,
     )
 
+    transaction_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("transactions.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+
     amount = Column(
         Numeric(12, 2),
         nullable=False,
@@ -60,4 +68,9 @@ class Anomaly(Base):
     user = relationship(
         "User",
         back_populates="anomalies",
+    )
+
+    transaction = relationship(
+        "Transaction",
+        back_populates="anomaly",
     )

@@ -21,7 +21,7 @@ router = APIRouter(
 
 
 @router.post(
-    "/",
+    "",
     response_model=BudgetResponse,
     status_code=status.HTTP_201_CREATED,
 )
@@ -36,8 +36,6 @@ def create_budget(
             user_id=current_user.id,
             category=request.category,
             monthly_limit=request.monthly_limit,
-            month=request.month,
-            year=request.year,
         )
     except ValueError as e:
         raise HTTPException(
@@ -47,12 +45,12 @@ def create_budget(
 
 
 @router.get(
-    "/",
+    "",
     response_model=list[BudgetResponse],
 )
 def get_budgets(
-    month: int,
-    year: int,
+    month: int | None = None,
+    year: int | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -71,8 +69,8 @@ def get_budgets(
     response_model=list[BudgetSummary],
 )
 def get_budget_summary(
-    month: int,
-    year: int,
+    month: int | None = None,
+    year: int | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):

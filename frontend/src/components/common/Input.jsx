@@ -8,6 +8,7 @@ export default function Input({
     onChange,
     icon: Icon,
     error,
+    ...rest
 }) {
     return (
         <div className="w-full">
@@ -55,6 +56,7 @@ export default function Input({
                     placeholder={placeholder}
                     value={value}
                     onChange={onChange}
+                    {...rest}
                 />
             </motion.div>
 

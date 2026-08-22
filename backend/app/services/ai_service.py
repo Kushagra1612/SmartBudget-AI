@@ -2,107 +2,64 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from app.ai.context_builder import ContextBuilder
-from app.ai.financial_agent import FinancialAgent
-from app.ai.planner import Planner
-from app.ai.tool_executor import ToolExecutor
-from app.repositories.dashboard_repository import DashboardRepository
-from app.services.analytics_service import AnalyticsService
-from app.services.budget_service import BudgetService
+from app.ai.graph import financial_graph
+from app.ai.memory import Memory
 from app.services.statement_service import StatementService
 
-class AIService:
 
-    planner = Planner()
-    executor = ToolExecutor()
-    agent = FinancialAgent()
+class AIService:
+    """
+    Public interface is unchanged from before the LangGraph rebuild --
+    get_dashboard_pulse / get_financial_advice / chat all take the same
+    arguments and return the same shapes. What changed is everything
+    underneath: this now runs the request through financial_graph
+    (app/ai/graph.py) instead of a hand-rolled planner/executor loop.
+    """
+
+    # One Memory per user instead of one shared for the whole process --
+    # the old version's AIService.agent was a single class-level
+    # FinancialAgent (and therefore a single Memory) that every user's
+    # chat went through, so one person's conversation history could
+    # leak into another's. Keyed here instead.
+    _memories: dict[UUID, Memory] = {}
 
     @staticmethod
-    def _generate_analytics(
-        db: Session,
-        *,
-        user_id: UUID,
-        month: int | None = None,
-        year: int | None = None,
-    ):
-
-        statement = StatementService.get_latest_statement(
-            db=db,
-            user_id=user_id,
-        )
-
-        if statement is not None:
-            month = statement.month
-            year = statement.year
-
-        elif month is None or year is None:
-            raise ValueError("No uploaded statement found.")
-
-        income = DashboardRepository.get_monthly_income(
-            db=db,
-            user_id=user_id,
-            month=month,
-            year=year,
-        )
-
-        expenses = DashboardRepository.get_monthly_expenses(
-            db=db,
-            user_id=user_id,
-            month=month,
-            year=year,
-        )
-
-        category_totals = DashboardRepository.get_category_totals(
-            db=db,
-            user_id=user_id,
-            month=month,
-            year=year,
-        )
-
-        budget_summary = BudgetService.get_budget_summary(
-            db=db,
-            user_id=user_id,
-            month=month,
-            year=year,
-        )
-
-        overspent_categories = sum(
-            1
-            for budget in budget_summary
-            if budget.utilization_percentage >= 100
-        )
-
-        return AnalyticsService.generate(
-            income=income,
-            expenses=expenses,
-            overspent_categories=overspent_categories,
-            category_totals=category_totals,
-            budget_summary=budget_summary,
-        )
+    def _memory_for(user_id: UUID) -> Memory:
+        if user_id not in AIService._memories:
+            AIService._memories[user_id] = Memory()
+        return AIService._memories[user_id]
 
     @staticmethod
     def get_dashboard_pulse(
         db: Session,
         *,
         user_id: UUID,
-        month: int,
-        year: int,
+        month: int | None = None,
+        year: int | None = None,
     ):
-
-        analytics = AIService._generate_analytics(
+        month, year = StatementService.resolve_period(
             db=db,
             user_id=user_id,
             month=month,
             year=year,
         )
 
-        message = AIService.agent.generate_advice(
-            analytics=analytics,
+        result = financial_graph.invoke(
+            {
+                "mode": "pulse",
+                "db": db,
+                "user_id": user_id,
+                "month": month,
+                "year": year,
+                "question": "",
+                "history": "",
+            }
         )
 
         return {
-            "message": message.split("\n")[0],
-            "status": analytics.financial_score.status,
+            "message": result["final_response"].split("\n")[0],
+            "status": result["status"],
+            "agents_used": result["route"],
         }
 
     @staticmethod
@@ -110,60 +67,71 @@ class AIService:
         db: Session,
         *,
         user_id: UUID,
-        month: int,
-        year: int,
-    ) -> str:
+        month: int | None = None,
+        year: int | None = None,
+    ) -> dict:
 
-        analytics = AIService._generate_analytics(
+        month, year = StatementService.resolve_period(
             db=db,
             user_id=user_id,
             month=month,
             year=year,
         )
 
-        return AIService.agent.generate_advice(
-            analytics=analytics,
+        result = financial_graph.invoke(
+            {
+                "mode": "advice",
+                "db": db,
+                "user_id": user_id,
+                "month": month,
+                "year": year,
+                "question": "",
+                "history": "",
+            }
         )
+
+        return {
+            "advice": result["final_response"],
+            "agents_used": result["route"],
+        }
 
     @staticmethod
     def chat(
         db: Session,
         *,
         user_id: UUID,
-        month: int,
-        year: int,
+        month: int | None = None,
+        year: int | None = None,
         question: str,
-    ) -> str:
+    ) -> dict:
 
-        try:
-
-            history = AIService.agent.memory.get_recent_history()
-
-            tools = AIService.planner.plan(
-                question=question,
-                history=history,
-            )
-
-        except Exception:
-
-            tools = ["dashboard"]
-
-        tool_results = AIService.executor.execute(
-            tools=tools,
+        month, year = StatementService.resolve_period(
             db=db,
             user_id=user_id,
             month=month,
             year=year,
         )
 
-        context = ContextBuilder.build(tool_results)
+        memory = AIService._memory_for(user_id)
 
-        if not context.strip():
-            context = (
-                "No financial information could be collected."
-            )
-
-        return AIService.agent.handle_query(
-            question=question,
-            context=context,
+        result = financial_graph.invoke(
+            {
+                "mode": "chat",
+                "db": db,
+                "user_id": user_id,
+                "month": month,
+                "year": year,
+                "question": question,
+                "history": memory.get_recent_history(),
+            }
         )
+
+        response = result["final_response"]
+
+        memory.add(role="User", message=question)
+        memory.add(role="Assistant", message=response)
+
+        return {
+            "response": response,
+            "agents_used": result["route"],
+        }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getDashboard } from "../api/dashboard";
 
-export default function useDashboard(month, year) {
+export default function useDashboard() {
 
     const [dashboard, setDashboard] = useState(null);
 
@@ -15,10 +15,7 @@ export default function useDashboard(month, year) {
 
             try {
 
-                const data = await getDashboard(
-                    month,
-                    year,
-                );
+                const data = await getDashboard();
 
                 setDashboard(data);
 
@@ -36,7 +33,7 @@ export default function useDashboard(month, year) {
 
         fetchDashboard();
 
-    }, [month, year]);
+    }, []);
 
     return {
 

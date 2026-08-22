@@ -6,6 +6,7 @@ from app.models.budget import Budget
 from app.repositories.budget_repository import BudgetRepository
 from app.repositories.transaction_repository import TransactionRepository
 from app.schemas.budget_schema import BudgetSummary
+from app.services.statement_service import StatementService
 
 
 class BudgetService:
@@ -17,12 +18,15 @@ class BudgetService:
         user_id: UUID,
         category: str,
         monthly_limit: float,
-        month: int,
-        year: int,
     ) -> Budget:
 
         if monthly_limit <= 0:
             raise ValueError("Monthly limit must be greater than 0.")
+
+        month, year = StatementService.resolve_period(
+            db=db,
+            user_id=user_id,
+        )
 
         if BudgetRepository.exists(
             db=db,
@@ -61,9 +65,17 @@ class BudgetService:
         db: Session,
         *,
         user_id: UUID,
-        month: int,
-        year: int,
+        month: int | None = None,
+        year: int | None = None,
     ) -> list[Budget]:
+
+        month, year = StatementService.resolve_period(
+            db=db,
+            user_id=user_id,
+            month=month,
+            year=year,
+        )
+
         return BudgetRepository.get_user_budgets(
             db=db,
             user_id=user_id,
@@ -140,9 +152,16 @@ class BudgetService:
         db: Session,
         *,
         user_id: UUID,
-        month: int,
-        year: int,
+        month: int | None = None,
+        year: int | None = None,
     ) -> list[BudgetSummary]:
+
+        month, year = StatementService.resolve_period(
+            db=db,
+            user_id=user_id,
+            month=month,
+            year=year,
+        )
 
         budgets = BudgetRepository.get_user_budgets(
             db=db,

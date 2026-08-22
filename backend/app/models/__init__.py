@@ -4,6 +4,7 @@ from app.models.statement import Statement
 from app.models.budget import Budget
 from app.models.anomaly import Anomaly
 from app.models.chat_history import ChatHistory
+from app.models.user_goal import UserGoal
 
 __all__ = [
     "User",
@@ -12,4 +13,5 @@ __all__ = [
     "Budget",
     "Anomaly",
     "ChatHistory",
+    "UserGoal",
 ]

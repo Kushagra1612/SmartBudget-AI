@@ -18,4 +18,29 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
+// A 401 means the token is missing, expired, or invalid -- the backend
+// rejected it regardless of which. Clear it and send the user back to
+// login instead of leaving every page stuck on a silent "Error loading..."
+// state with no way back in.
+api.interceptors.response.use(
+    (response) => response,
+
+    (error) => {
+
+        if (error.response?.status === 401) {
+
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("token_type");
+
+            if (window.location.pathname !== "/login") {
+                window.location.href = "/login";
+            }
+
+        }
+
+        return Promise.reject(error);
+
+    }
+);
+
 export default api;

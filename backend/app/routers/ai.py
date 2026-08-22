@@ -52,7 +52,7 @@ def financial_advice(
     current_user: User = Depends(get_current_user),
 ):
 
-    advice = AIService.get_financial_advice(
+    result = AIService.get_financial_advice(
         db=db,
         user_id=current_user.id,
         month=request.month,
@@ -60,7 +60,8 @@ def financial_advice(
     )
 
     return FinancialAdviceResponse(
-        advice=advice,
+        advice=result["advice"],
+        agents_used=result["agents_used"],
     )
 
 
@@ -74,7 +75,7 @@ def chat(
     current_user: User = Depends(get_current_user),
 ):
 
-    response = AIService.chat(
+    result = AIService.chat(
         db=db,
         user_id=current_user.id,
         month=request.month,
@@ -83,5 +84,6 @@ def chat(
     )
 
     return ChatResponse(
-        response=response,
+        response=result["response"],
+        agents_used=result["agents_used"],
     )

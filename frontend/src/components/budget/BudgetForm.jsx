@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { IndianRupee } from "lucide-react";
 
 import {
     createBudget,
@@ -6,6 +7,9 @@ import {
 } from "../../api/budget";
 
 import { TRANSACTION_CATEGORIES } from "../../constants/categories";
+import Button from "../common/Button";
+import Input from "../common/Input";
+import Badge from "../common/Badge";
 
 export default function BudgetForm({
     budget = null,
@@ -13,13 +17,9 @@ export default function BudgetForm({
     onBudgetUpdated,
 }) {
 
-    const currentDate = new Date();
-
     const [form, setForm] = useState({
         category: "",
         monthly_limit: "",
-        month: currentDate.getMonth() + 1,
-        year: currentDate.getFullYear(),
     });
 
     const [loading, setLoading] = useState(false);
@@ -31,8 +31,6 @@ export default function BudgetForm({
             setForm({
                 category: budget.category,
                 monthly_limit: budget.monthly_limit,
-                month: budget.month,
-                year: budget.year,
             });
 
         } else {
@@ -40,8 +38,6 @@ export default function BudgetForm({
             setForm({
                 category: "",
                 monthly_limit: "",
-                month: currentDate.getMonth() + 1,
-                year: currentDate.getFullYear(),
             });
 
         }
@@ -82,8 +78,6 @@ export default function BudgetForm({
                 const created = await createBudget({
                     category: form.category,
                     monthly_limit: Number(form.monthly_limit),
-                    month: Number(form.month),
-                    year: Number(form.year),
                 });
 
                 onBudgetCreated(created);
@@ -91,13 +85,11 @@ export default function BudgetForm({
                 setForm({
                     category: "",
                     monthly_limit: "",
-                    month: currentDate.getMonth() + 1,
-                    year: currentDate.getFullYear(),
                 });
 
             }
 
-        } catch (err) {
+        } catch {
 
             alert(
                 budget
@@ -120,11 +112,17 @@ export default function BudgetForm({
             className="space-y-4 mb-8"
         >
 
+            {budget && (
+                <Badge color="primary">
+                    Editing {budget.category}
+                </Badge>
+            )}
+
             <select
                 name="category"
                 value={form.category}
                 onChange={handleChange}
-                className="w-full border rounded-lg p-3"
+                className="w-full bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm outline-none focus:border-[var(--primary)] transition-all"
                 required
             >
 
@@ -145,25 +143,24 @@ export default function BudgetForm({
 
             </select>
 
-            <input
+            <Input
                 type="number"
                 name="monthly_limit"
                 placeholder="Monthly Limit"
                 value={form.monthly_limit}
                 onChange={handleChange}
-                className="w-full border rounded-lg p-3"
+                icon={IndianRupee}
                 required
             />
 
-            <button
+            <Button
                 type="submit"
                 disabled={loading}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition"
             >
                 {loading
                     ? (budget ? "Updating..." : "Creating...")
                     : (budget ? "Update Budget" : "Create Budget")}
-            </button>
+            </Button>
 
         </form>
 

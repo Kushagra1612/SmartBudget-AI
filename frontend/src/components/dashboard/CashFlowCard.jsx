@@ -17,15 +17,19 @@ export default function CashFlowCard({
                 ₹{Number(amount).toLocaleString("en-IN")}
             </h2>
 
-            <p
-                className={`mt-3 font-semibold ${
-                    positive
-                        ? "text-green-600"
-                        : "text-red-500"
-                }`}
-            >
-                {change}
-            </p>
+            {change && (
+
+                <p
+                    className={`mt-3 font-semibold ${
+                        positive
+                            ? "text-green-600"
+                            : "text-red-500"
+                    }`}
+                >
+                    {change}
+                </p>
+
+            )}
 
         </Card>
     );

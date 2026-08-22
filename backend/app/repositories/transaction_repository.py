@@ -100,6 +100,28 @@ class TransactionRepository:
         )
 
     @staticmethod
+    def get_by_user_id(
+        db: Session,
+        *,
+        user_id: UUID,
+    ) -> list[Transaction]:
+        """
+        Return all non-deleted transactions belonging to a user, oldest
+        first. Used by anomaly detection to build a user's spending
+        history.
+        """
+
+        return (
+            db.query(Transaction)
+            .filter(
+                Transaction.user_id == user_id,
+                Transaction.is_deleted.is_(False),
+            )
+            .order_by(Transaction.transaction_date.asc())
+            .all()
+        )
+
+    @staticmethod
     def delete_by_statement_id(
         db: Session,
         statement_id: UUID,

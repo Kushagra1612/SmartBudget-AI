@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { User, Mail, Lock } from "lucide-react";
 import { register } from "../../api/auth";
+import Button from "../common/Button";
+import Input from "../common/Input";
 
 export default function RegisterForm() {
 
@@ -59,42 +62,42 @@ export default function RegisterForm() {
             className="space-y-4"
         >
 
-            <input
+            <Input
                 name="full_name"
                 placeholder="Full Name"
                 value={form.full_name}
                 onChange={handleChange}
-                className="w-full border rounded-lg p-3"
+                icon={User}
                 required
             />
 
-            <input
+            <Input
                 type="email"
                 name="email"
                 placeholder="Email"
                 value={form.email}
                 onChange={handleChange}
-                className="w-full border rounded-lg p-3"
+                icon={Mail}
                 required
             />
 
-            <input
+            <Input
                 type="password"
                 name="password"
                 placeholder="Password"
                 value={form.password}
                 onChange={handleChange}
-                className="w-full border rounded-lg p-3"
+                icon={Lock}
                 required
             />
 
-            <button
+            <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 text-white rounded-lg p-3"
+                className="w-full"
             >
                 {loading ? "Creating..." : "Create Account"}
-            </button>
+            </Button>
 
         </form>
 

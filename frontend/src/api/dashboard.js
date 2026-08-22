@@ -1,13 +1,8 @@
 import api from "./axios";
 
-export async function getDashboard(month, year) {
+export async function getDashboard() {
 
-    const response = await api.get("/dashboard", {
-        params: {
-            month,
-            year,
-        },
-    });
+    const response = await api.get("/dashboard");
 
     return response.data;
 }

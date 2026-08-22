@@ -4,9 +4,11 @@ import {
     Target,
     ChartColumn,
     Bot,
+    LogOut,
 } from "lucide-react";
 
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const items = [
     {
@@ -32,6 +34,20 @@ const items = [
 ];
 
 export default function FloatingDock() {
+
+    const navigate = useNavigate();
+    const { setUser } = useAuth();
+
+    const handleLogout = () => {
+
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("token_type");
+
+        setUser(null);
+
+        navigate("/login");
+
+    };
 
     return (
 
@@ -86,6 +102,30 @@ export default function FloatingDock() {
                     );
 
                 })}
+
+                <div className="w-px h-8 bg-gray-200" />
+
+                <button
+                    type="button"
+                    onClick={handleLogout}
+                    title="Log out"
+                    className="
+                        w-12
+                        h-12
+                        rounded-full
+                        flex
+                        items-center
+                        justify-center
+                        text-gray-500
+                        hover:bg-red-50
+                        hover:text-red-500
+                        hover:scale-105
+                        transition-all
+                        duration-300
+                    "
+                >
+                    <LogOut size={22} />
+                </button>
 
             </div>
 

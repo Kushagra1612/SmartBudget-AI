@@ -1,11 +1,27 @@
 import api from "./axios";
 
-export const getDailyPulse = (month, year) =>
-    api
-        .get("/ai/pulse", {
-            params: {
-                month,
-                year,
-            },
-        })
-        .then((res) => res.data);
+export const chat = async (message) => {
+
+    const response = await api.post("/ai/chat", {
+        message,
+    });
+
+    return response.data;
+
+};
+
+export const getAdvice = async () => {
+
+    const response = await api.post("/ai/advice", {});
+
+    return response.data;
+
+};
+
+export const getPulse = async () => {
+
+    const response = await api.get("/ai/pulse");
+
+    return response.data;
+
+};

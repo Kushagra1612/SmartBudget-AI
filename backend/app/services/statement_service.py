@@ -1,3 +1,4 @@
+from datetime import date
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -122,3 +123,38 @@ class StatementService:
             db=db,
             user_id=user_id,
         )
+
+    @staticmethod
+    def resolve_period(
+        db: Session,
+        user_id: UUID,
+        month: int | None = None,
+        year: int | None = None,
+    ) -> tuple[int, int]:
+        """
+        Single source of truth for "which month/year should we use right
+        now" -- shared by Dashboard, Budgets, and the AI agents so they
+        can never disagree with each other.
+
+        If the user has uploaded a statement, its month/year always wins
+        (this is how Dashboard already behaved), regardless of whatever
+        month/year was passed in -- there's no month picker anywhere in
+        the app, so nothing should ever override this. Only when there's
+        no statement at all do explicit month/year (if given) get used,
+        falling back to today's real calendar date as a last resort so a
+        brand-new user isn't blocked before their first upload.
+        """
+
+        statement = StatementService.get_latest_statement(
+            db=db,
+            user_id=user_id,
+        )
+
+        if statement is not None:
+            return statement.month, statement.year
+
+        if month is not None and year is not None:
+            return month, year
+
+        today = date.today()
+        return today.month, today.year

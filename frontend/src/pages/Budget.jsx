@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import MainLayout from "../layouts/MainLayout";
 import BudgetForm from "../components/budget/BudgetForm";
@@ -11,35 +11,18 @@ export default function Budget() {
         summary,
         loading,
         error,
+        refetch,
     } = useBudgetSummary();
 
-    const [budgetList, setBudgetList] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [editingBudget, setEditingBudget] = useState(null);
 
-    useEffect(() => {
+    function removeBudget() {
 
-        setBudgetList(summary);
+        refetch();
 
-    }, [summary]);
-
-    function addBudget(budget) {
-
-        setBudgetList((prev) => [
-            budget,
-            ...prev,
-        ]);
-
-    }
-
-    function removeBudget(id) {
-
-        setBudgetList((prev) =>
-            prev.filter((budget) => budget.id !== id)
-        );
         setEditingBudget(null);
         setShowForm(false);
-
 
     }
 
@@ -47,21 +30,6 @@ export default function Budget() {
 
         setEditingBudget(budget);
         setShowForm(true);
-
-    }
-
-    function updateExistingBudget(updatedBudget) {
-
-        setBudgetList((prev) =>
-            prev.map((budget) =>
-                budget.id === updatedBudget.id
-                    ? {
-                          ...budget,
-                          monthly_limit: updatedBudget.monthly_limit,
-                      }
-                    : budget
-            )
-        );
 
     }
 
@@ -101,18 +69,16 @@ export default function Budget() {
 
                 <BudgetForm
                     budget={editingBudget}
-                    onBudgetCreated={(budget) => {
+                    onBudgetCreated={() => {
 
-                        addBudget(budget);
+                        refetch();
 
                         setShowForm(false);
 
-                        window.location.reload();
-
                     }}
-                    onBudgetUpdated={(budget) => {
+                    onBudgetUpdated={() => {
 
-                        updateExistingBudget(budget);
+                        refetch();
 
                         setEditingBudget(null);
 
@@ -123,7 +89,7 @@ export default function Budget() {
 
             )}
 
-            {budgetList.length === 0 ? (
+            {summary.length === 0 ? (
 
                 <div className="text-center py-20 text-gray-500">
 
@@ -141,7 +107,7 @@ export default function Budget() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-                    {budgetList.map((budget) => (
+                    {summary.map((budget) => (
 
                         <BudgetCard
                             key={budget.id}

@@ -29,19 +29,12 @@ class DashboardService:
         year: int | None = None,   
     ) -> DashboardResponse:
 
-        statement = StatementService.get_latest_statement(
+        month, year = StatementService.resolve_period(
             db=db,
             user_id=user_id,
+            month=month,
+            year=year,
         )
-
-        if statement is not None:
-            month = statement.month
-            year = statement.year
-
-        elif month is None or year is None:
-            raise ValueError(
-                "No uploaded statement found."
-            )
 
         income = DashboardRepository.get_monthly_income(
             db=db,

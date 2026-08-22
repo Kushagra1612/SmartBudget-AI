@@ -178,3 +178,9 @@ class Transaction(Base):
         "Statement",
         back_populates="transactions",
     )
+
+    anomaly = relationship(
+        "Anomaly",
+        back_populates="transaction",
+        uselist=False,
+    )

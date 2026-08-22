@@ -8,8 +8,6 @@ from pydantic import BaseModel, ConfigDict, Field
 class BudgetCreate(BaseModel):
     category: str = Field(..., min_length=1, max_length=100)
     monthly_limit: Decimal = Field(..., gt=0)
-    month: int = Field(..., ge=1, le=12)
-    year: int = Field(..., ge=2024)
 
 
 class BudgetUpdate(BaseModel):

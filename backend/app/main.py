@@ -11,12 +11,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import budget 
-from app.routers import  auth_router,upload_router
-from app.routers import transactions
-from app.routers.dashboard import router as dashboard_router
-from app.routers.ai import router as ai_router
-from app.routers.goal import router as goal_router
+from app.routers import (
+    ai_router,
+    anomaly_router,
+    auth_router,
+    budget_router,
+    dashboard_router,
+    goal_router,
+    transactions_router,
+    upload_router,
+)
 
 app = FastAPI(
     title="Smart Budget AI",
@@ -53,8 +57,9 @@ def health_check():
 
 app.include_router(auth_router)
 app.include_router(upload_router)
-app.include_router(transactions.router)
-app.include_router(budget.router)
+app.include_router(transactions_router)
+app.include_router(budget_router)
 app.include_router(dashboard_router)
 app.include_router(ai_router)
 app.include_router(goal_router)
+app.include_router(anomaly_router)

@@ -32,18 +32,50 @@ export default function AIPulseCard() {
 
     return (
 
-        <Card>
+    <Card>
 
-            <h2 className="text-2xl font-bold">
-                AI Daily Pulse
-            </h2>
+        <h2 className="text-2xl font-bold">
+            AI Daily Pulse
+        </h2>
 
-            <p className="mt-6">
+        <div className="mt-6">
+
+            <p className="text-lg">
                 {pulse.message}
             </p>
 
-        </Card>
+            <div className="mt-4">
 
-    );
+                <span
+                    className={`
+                        inline-block
+                        px-3
+                        py-1
+                        rounded-full
+                        text-sm
+                        font-semibold
+                        ${
+                            pulse.status === "Excellent"
+                                ? "bg-green-100 text-green-700"
+                                : pulse.status === "Very Good"
+                                ? "bg-emerald-100 text-emerald-700"
+                                : pulse.status === "Good"
+                                ? "bg-blue-100 text-blue-700"
+                                : pulse.status === "Average"
+                                ? "bg-yellow-100 text-yellow-700"
+                                : "bg-red-100 text-red-700"
+                        }
+                    `}
+                >
+                    {pulse.status}
+                </span>
+
+            </div>
+
+        </div>
+
+    </Card>
+
+);
 
 }

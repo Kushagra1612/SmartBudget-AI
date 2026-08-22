@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getDailyPulse } from "../api/ai";
+import { getPulse } from "../api/ai";
 
 export default function useAIPulse() {
 
@@ -12,12 +12,7 @@ export default function useAIPulse() {
 
             try {
 
-                const currentDate = new Date();
-
-                const data = await getDailyPulse(
-                    currentDate.getMonth() + 1,
-                    currentDate.getFullYear(),
-                );
+                const data = await getPulse();
 
                 setPulse(data);
 

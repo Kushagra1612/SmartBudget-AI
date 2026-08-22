@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../../api/auth";
+import { Mail, Lock } from "lucide-react";
+import { login, getProfile } from "../../api/auth";
+import { useAuth } from "../../context/AuthContext";
+import Button from "../common/Button";
+import Input from "../common/Input";
 
 export default function LoginForm() {
 
     const navigate = useNavigate();
+    const { setUser } = useAuth();
 
     const [form, setForm] = useState({
         email: "",
@@ -45,6 +50,20 @@ export default function LoginForm() {
                 response.data.token_type
             );
 
+            try {
+
+                const profile = await getProfile();
+
+                setUser(profile.data);
+
+            } catch {
+
+                // Non-fatal -- login itself already succeeded, and
+                // AuthContext will retry fetching the profile the next
+                // time the app mounts.
+
+            }
+
             navigate("/dashboard");
 
         } catch (error) {
@@ -69,33 +88,33 @@ export default function LoginForm() {
             className="space-y-4"
         >
 
-            <input
+            <Input
                 type="email"
                 name="email"
                 placeholder="Email"
                 value={form.email}
                 onChange={handleChange}
-                className="w-full border rounded-lg p-3"
+                icon={Mail}
                 required
             />
 
-            <input
+            <Input
                 type="password"
                 name="password"
                 placeholder="Password"
                 value={form.password}
                 onChange={handleChange}
-                className="w-full border rounded-lg p-3"
+                icon={Lock}
                 required
             />
 
-            <button
+            <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 text-white rounded-lg p-3"
+                className="w-full"
             >
                 {loading ? "Signing In..." : "Login"}
-            </button>
+            </Button>
 
         </form>
 

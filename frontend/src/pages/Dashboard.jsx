@@ -7,22 +7,18 @@ import CashFlowCard from "../components/dashboard/CashFlowCard";
 import AIPulseCard from "../components/dashboard/AIPulseCard";
 import GoalsPreview from "../components/dashboard/GoalsPreview";
 import SpendingOverview from "../components/dashboard/SpendingOverview";
+import AnomalyAlerts from "../components/dashboard/AnomalyAlerts";
 import RecentActivity from "../components/dashboard/RecentActivity";
 
 import useDashboard from "../hooks/useDashboard";
 
 export default function Dashboard() {
 
-    const currentDate = new Date();
-
     const {
         dashboard,
         loading,
         error,
-    } = useDashboard(
-        currentDate.getMonth() + 1,
-        currentDate.getFullYear(),
-    );
+    } = useDashboard();
 
     if (loading) {
     return (
@@ -66,20 +62,17 @@ if (error) {
                     <CashFlowCard
     title="Income"
     amount={dashboard.monthly_income}
-    change="+12%"
 />
 
 <CashFlowCard
     title="Expenses"
     amount={dashboard.monthly_expenses}
-    change="-8%"
     positive={false}
 />
 
 <CashFlowCard
     title="Savings"
     amount={dashboard.savings}
-    change="+20%"
 />
 
                     <div className="col-span-3">
@@ -96,6 +89,10 @@ if (error) {
                    <SpendingOverview
                         categories={dashboard.analytics.spending.categories}
                    />
+                </div>
+
+                <div className="col-span-12">
+                    <AnomalyAlerts />
                 </div>
 
                 <div className="col-span-12">
