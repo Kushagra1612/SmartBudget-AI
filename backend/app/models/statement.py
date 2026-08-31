@@ -41,6 +41,16 @@ class Statement(Base):
         nullable=False,
     )
 
+    # SHA-256 of the uploaded file's bytes, used to detect re-uploading
+    # the exact same statement twice. Nullable because statements
+    # created before this column existed have no PDF left to hash (the
+    # file is deleted right after parsing) -- those rows just don't
+    # participate in duplicate detection.
+    file_hash = Column(
+        String(64),
+        nullable=True,
+    )
+
     bank = Column(
         String(100),
         nullable=True,

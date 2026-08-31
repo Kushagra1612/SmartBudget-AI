@@ -1,10 +1,3 @@
-"""
-Centralized prompts for SmartBudget AI.
-
-All Gemini prompts should be defined here.
-"""
-
-
 SYSTEM_PROMPT = """
 You are SmartBudget AI, an intelligent personal financial advisor.
 

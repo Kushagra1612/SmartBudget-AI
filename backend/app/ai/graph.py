@@ -1,28 +1,3 @@
-"""
-LangGraph orchestration for the financial assistant. (Phase 8)
-
-Replaces the earlier custom planner -> tool-executor -> agent pipeline
-with an actual LangGraph StateGraph: one coordinator node that decides
-which specialist agents are relevant, up to 4 specialist agent nodes
-that run in parallel (each wrapping one of the existing Tool classes),
-and one responder node that synthesizes the final answer.
-
-    coordinator --> {dashboard_agent, budget_agent, spending_agent, goal_agent}
-                            (any subset, chosen per request)
-                                    |
-                                    v
-                                responder
-
-Three modes share this one graph:
-- "chat": the coordinator asks Gemini which agents are relevant to the
-  user's actual question (dynamic routing, same prompt/logic the old
-  Planner used).
-- "pulse" / "advice": always routes to dashboard + budget + spending --
-  advice inherently needs the full picture, so there's nothing for an
-  LLM to decide here. Skipping that call is just not asking a question
-  with a fixed answer, not a gap in the routing.
-"""
-
 import json
 import operator
 from typing import Annotated, Any, TypedDict

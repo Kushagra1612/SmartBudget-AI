@@ -95,6 +95,27 @@ class StatementRepository:
         db.commit()
 
     @staticmethod
+    def get_by_hash(
+        db: Session,
+        *,
+        user_id: UUID,
+        file_hash: str,
+    ) -> Statement | None:
+        """
+        Look up a statement this user already uploaded with the exact
+        same file content, if any.
+        """
+
+        return (
+            db.query(Statement)
+            .filter(
+                Statement.user_id == user_id,
+                Statement.file_hash == file_hash,
+            )
+            .first()
+        )
+
+    @staticmethod
     def count_by_user(
         db: Session,
         user_id: UUID,

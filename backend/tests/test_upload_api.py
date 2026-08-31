@@ -129,3 +129,87 @@ def test_uploaded_transactions_then_appear_in_the_transactions_list(
     assert response.status_code == 200
     assert len(response.json()) == 1
     assert response.json()[0]["merchant"] == "Test Merchant"
+
+
+def test_reuploading_the_exact_same_file_is_rejected_not_duplicated(
+    client, auth_headers
+):
+    """
+    Regression test: uploading the same PDF twice (an easy accident --
+    a double click, a retry after a network hiccup) used to silently
+    insert every transaction a second time, since nothing checked
+    whether this content had already been processed for this user.
+    """
+
+    file_bytes = b"%PDF-1.4 fake pdf bytes for duplicate detection"
+
+    with patch(
+        "app.routers.upload.PDFService.parse_statement",
+        return_value=_fake_parsed_result(),
+    ):
+        first = client.post(
+            "/upload/statement",
+            files={"file": ("statement.pdf", file_bytes, "application/pdf")},
+            headers=auth_headers,
+        )
+
+        second = client.post(
+            "/upload/statement",
+            files={"file": ("statement.pdf", file_bytes, "application/pdf")},
+            headers=auth_headers,
+        )
+
+    assert first.status_code == 200
+    assert second.status_code == 409
+    assert "already uploaded" in second.json()["detail"]
+
+    # The important part: still exactly one copy of the transaction,
+    # not two.
+    transactions = client.get("/transactions", headers=auth_headers).json()
+    assert len(transactions) == 1
+
+
+def test_two_different_users_can_upload_the_same_file(
+    client, auth_headers, user_credentials
+):
+    """
+    The duplicate check is scoped per user, not global -- two people
+    legitimately uploading the same sample/demo statement shouldn't
+    collide with each other.
+    """
+
+    other_credentials = dict(
+        user_credentials, email="other_upload_user@example.com"
+    )
+    client.post("/auth/register", json=other_credentials)
+    other_login = client.post(
+        "/auth/login",
+        data={
+            "username": other_credentials["email"],
+            "password": other_credentials["password"],
+        },
+    )
+    other_headers = {
+        "Authorization": f"Bearer {other_login.json()['access_token']}"
+    }
+
+    file_bytes = b"%PDF-1.4 shared sample statement"
+
+    with patch(
+        "app.routers.upload.PDFService.parse_statement",
+        return_value=_fake_parsed_result(),
+    ):
+        first_user = client.post(
+            "/upload/statement",
+            files={"file": ("statement.pdf", file_bytes, "application/pdf")},
+            headers=auth_headers,
+        )
+
+        second_user = client.post(
+            "/upload/statement",
+            files={"file": ("statement.pdf", file_bytes, "application/pdf")},
+            headers=other_headers,
+        )
+
+    assert first_user.status_code == 200
+    assert second_user.status_code == 200

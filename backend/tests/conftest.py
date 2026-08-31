@@ -1,15 +1,3 @@
-"""
-Shared fixtures for the whole test suite.
-
-Run with `pytest` from the backend/ directory. Needs a dedicated test
-database -- this NEVER touches DATABASE_URL / your real dev database.
-
-    createdb smart_budget_ai_test   # once, on the same Postgres instance
-
-Point TEST_DATABASE_URL at something else if you'd rather use a
-different name or host.
-"""
-
 import os
 import random
 import uuid

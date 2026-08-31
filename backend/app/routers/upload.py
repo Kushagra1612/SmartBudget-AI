@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import os
 import shutil
@@ -64,6 +65,24 @@ async def upload_statement(
             detail="PDF exceeds the maximum allowed size (10 MB).",
         )
 
+    file_hash = hashlib.sha256(contents).hexdigest()
+
+    existing = StatementService.get_by_hash(
+        db=db,
+        user_id=current_user.id,
+        file_hash=file_hash,
+    )
+
+    if existing is not None:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "You've already uploaded this exact statement "
+                f"(on {existing.uploaded_at:%b %d, %Y}). "
+                "Re-uploading it would duplicate every transaction in it."
+            ),
+        )
+
     file.file.seek(0)
 
     unique_filename = f"{uuid.uuid4()}.pdf"
@@ -114,6 +133,7 @@ async def upload_statement(
             confidence=result.get("confidence", 1.0),
             month=statement_month,
             year=statement_year,
+            file_hash=file_hash,
         )
 
         logger.info(

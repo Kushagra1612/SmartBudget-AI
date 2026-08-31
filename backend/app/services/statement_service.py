@@ -22,6 +22,7 @@ class StatementService:
         confidence: float,
         month: int,
         year: int,
+        file_hash: str | None = None,
     ) -> Statement:
         """
         Create and save a bank statement.
@@ -37,11 +38,30 @@ class StatementService:
             confidence=confidence,
             month=month,
             year=year,
+            file_hash=file_hash,
         )
 
         return StatementRepository.create(
             db=db,
             statement=statement,
+        )
+
+    @staticmethod
+    def get_by_hash(
+        db: Session,
+        *,
+        user_id: UUID,
+        file_hash: str,
+    ) -> Statement | None:
+        """
+        Check whether this user already uploaded a statement with this
+        exact file content.
+        """
+
+        return StatementRepository.get_by_hash(
+            db=db,
+            user_id=user_id,
+            file_hash=file_hash,
         )
 
     @staticmethod
