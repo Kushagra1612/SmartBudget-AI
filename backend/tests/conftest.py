@@ -1,3 +1,4 @@
+
 import os
 import random
 import uuid
@@ -82,11 +83,6 @@ def client():
 
 @pytest.fixture()
 def db_session():
-    """
-    Direct DB access for tests that need to seed data the API has no
-    way to create (there's no POST /transactions -- they only ever come
-    from parsing an uploaded statement).
-    """
 
     session = TestingSessionLocal()
     try:
@@ -132,13 +128,6 @@ def auth_headers(client, registered_user, user_credentials):
 
 @pytest.fixture()
 def mock_gemini(monkeypatch):
-    """
-    Patches GeminiService.generate so AI-related tests never hit the real
-    API -- no quota cost, no GEMINI_API_KEY needed, no network flakiness.
-
-    Returns the canned string every mocked call produces, in case a test
-    wants to assert on it.
-    """
 
     from app.ai.gemini_service import GeminiService
 
@@ -154,13 +143,6 @@ def mock_gemini(monkeypatch):
 
 @pytest.fixture()
 def clean_ai_memory():
-    """
-    AIService now keeps one Memory per user (a fix made during the
-    LangGraph rebuild -- it used to be one shared Memory for every
-    user). Clears that dict before and after each test that touches
-    /ai/chat so tests don't see leftover history from each other or
-    from a previous test run.
-    """
 
     from app.services.ai_service import AIService
 
@@ -178,12 +160,9 @@ def seed_transactions(
     amount_range: tuple[int, int] = (300, 600),
     transaction_type: TransactionType = TransactionType.EXPENSE,
     start_days_ago: int = 1,
+    same_day: bool = False,
 ):
-    """
-    Create a statement plus `count` transactions for a user. Not a
-    fixture -- call it directly with whatever shape of data a given
-    test needs (category, amount range, how many).
-    """
+   
 
     if isinstance(user_id, str):
         user_id = uuid.UUID(user_id)
@@ -202,6 +181,7 @@ def seed_transactions(
     transactions = []
 
     for i in range(count):
+        day_offset = start_days_ago if same_day else start_days_ago + i
         txn = Transaction(
             user_id=user_id,
             statement_id=statement.id,
@@ -210,7 +190,7 @@ def seed_transactions(
             category=category,
             merchant=f"Test Merchant {i}",
             source="manual",
-            transaction_date=date.today() - timedelta(days=start_days_ago + i),
+            transaction_date=date.today() - timedelta(days=day_offset),
         )
         db_session.add(txn)
         transactions.append(txn)

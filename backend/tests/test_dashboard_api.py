@@ -1,7 +1,3 @@
-"""
-Integration tests for GET /dashboard.
-"""
-
 from datetime import date
 
 from app.models.transaction import TransactionCategory, TransactionType
@@ -39,7 +35,8 @@ def test_reflects_seeded_income_and_expenses(
         category=TransactionCategory.FOOD,
         amount_range=(500, 500),
         transaction_type=TransactionType.EXPENSE,
-        start_days_ago=1,
+        start_days_ago=0,
+        same_day=True,
     )
     seed_transactions(
         db_session,
@@ -48,7 +45,8 @@ def test_reflects_seeded_income_and_expenses(
         category=TransactionCategory.SALARY,
         amount_range=(40000, 40000),
         transaction_type=TransactionType.INCOME,
-        start_days_ago=1,
+        start_days_ago=0,
+        same_day=True,
     )
 
     response = client.get(
@@ -65,18 +63,6 @@ def test_reflects_seeded_income_and_expenses(
 def test_no_statement_and_no_month_year_falls_back_to_todays_data(
     client, auth_headers
 ):
-    """
-    Used to be a documented 500: with no uploaded statement and no
-    explicit month/year, DashboardService raised a plain ValueError that
-    nothing in routers/dashboard.py caught.
-
-    Fixed by StatementService.resolve_period(), the shared helper that
-    now also backs Budgets and the AI endpoints: with no statement and
-    nothing explicit given, it falls back to today's real calendar date
-    instead of raising, so a brand-new user just sees a zeroed dashboard
-    for the current month rather than an error page.
-    """
-
     response = client.get("/dashboard", headers=auth_headers)
 
     assert response.status_code == 200
