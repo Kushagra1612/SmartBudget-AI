@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
+import toast from "react-hot-toast";
 import { login, getProfile } from "../../api/auth";
 import { useAuth } from "../../context/AuthContext";
 import Button from "../common/Button";
@@ -68,7 +69,7 @@ export default function LoginForm() {
 
         } catch (error) {
 
-            alert(
+            toast.error(
                 error.response?.data?.detail ??
                 "Login failed"
             );

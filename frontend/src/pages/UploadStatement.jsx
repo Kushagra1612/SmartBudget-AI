@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Upload, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import MainLayout from "../layouts/MainLayout";
 import { uploadStatement } from "../api/upload";
@@ -24,7 +25,7 @@ export default function UploadStatement() {
 
         if (!file) {
 
-            alert("Please select a PDF statement.");
+            toast.error("Please select a PDF statement.");
 
             return;
 
@@ -36,7 +37,7 @@ export default function UploadStatement() {
 
             const result = await uploadStatement(file);
 
-            alert(
+            toast.success(
                 `${result.transactions_found} transactions imported successfully.`
             );
 
@@ -44,7 +45,7 @@ export default function UploadStatement() {
 
         } catch (err) {
 
-            alert(
+            toast.error(
                 err.response?.data?.detail ??
                 "Upload failed."
             );

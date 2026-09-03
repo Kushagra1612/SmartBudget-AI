@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import { deleteGoal } from "../../api/goals";
 
 export default function GoalCard({
@@ -23,7 +24,7 @@ export default function GoalCard({
 
         } catch {
 
-            alert("Failed to delete goal.");
+            toast.error("Failed to delete goal.");
 
         }
 

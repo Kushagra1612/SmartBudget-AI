@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Mail, Lock } from "lucide-react";
+import toast from "react-hot-toast";
 import { register } from "../../api/auth";
 import Button from "../common/Button";
 import Input from "../common/Input";
@@ -36,13 +37,13 @@ export default function RegisterForm() {
 
             await register(form);
 
-            alert("Registration successful!");
+            toast.success("Registration successful!");
 
             navigate("/login");
 
         } catch (error) {
 
-            alert(
+            toast.error(
                 error.response?.data?.detail ??
                 "Registration failed"
             );

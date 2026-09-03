@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Target, IndianRupee, Calendar } from "lucide-react";
+import toast from "react-hot-toast";
 import {
     createGoal,
     updateGoal,
@@ -70,7 +71,7 @@ export default function GoalForm({
 
         } catch {
 
-            alert(
+            toast.error(
                 goal
                     ? "Failed to update goal."
                     : "Failed to create goal."

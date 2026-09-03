@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { IndianRupee } from "lucide-react";
+import toast from "react-hot-toast";
 
 import {
     createBudget,
@@ -91,7 +92,7 @@ export default function BudgetForm({
 
         } catch {
 
-            alert(
+            toast.error(
                 budget
                     ? "Failed to update budget."
                     : "Failed to create budget."

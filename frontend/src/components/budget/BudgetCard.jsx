@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import { deleteBudget } from "../../api/budget";
 
 export default function BudgetCard({
@@ -25,7 +26,7 @@ export default function BudgetCard({
 
         } catch {
 
-            alert("Failed to delete budget.");
+            toast.error("Failed to delete budget.");
 
         }
 
