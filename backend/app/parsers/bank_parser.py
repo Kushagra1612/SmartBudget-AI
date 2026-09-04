@@ -8,7 +8,10 @@ from app.parsers.bank_identifier import BankIdentifier
 from app.utils.parser_helpers import ParserHelper
 from app.utils.transaction_cleaner import TransactionCleaner
 from app.categorizer.category_engine import CategoryEngine
-
+from app.parsers.universal_statement_parser import (
+    UniversalStatementParser,
+)
+from app.parsers.text_transaction_parser import TextTransactionParser
 
 logger = logging.getLogger(__name__)
 
@@ -203,22 +206,16 @@ class BankStatementParser:
 
     @classmethod
     def parse(cls, pdf_path: str):
-        """
-        Parse a bank statement.
-
-        First attempts table extraction with Camelot. If no transactions
-        are found, extracts PDF text for debugging and bank identification.
-        """
-
+    
         logger.info(
             "Starting bank statement parsing: %s",
             pdf_path,
         )
 
-        # Try table extraction
         result = cls.extract_tables(pdf_path)
 
         if result is not None:
+
             logger.info(
                 "Successfully parsed %d transactions using %s",
                 len(result["transactions"]),
@@ -227,29 +224,89 @@ class BankStatementParser:
 
             return result
 
-        # Fallback: Extract text
-        logger.info(
+        logger.warning(
             "Camelot could not extract transactions. "
-            "Trying PDF text extraction."
+            "Trying universal text parser."
         )
 
-        # IMPORTANT: Define text first
         text = cls.extract_text(pdf_path)
 
-        # TEMPORARY DEBUG: Print extracted text directly to Render logs
+        if not text.strip():
+
+            logger.warning(
+                "No text could be extracted from PDF."
+            )
+
+            return None
+
         print("\n" + "=" * 60)
         print("PDF TEXT PREVIEW")
         print("=" * 60)
-        print(text[:3000])
+        print(text[:1000])
         print("=" * 60 + "\n")
 
         bank = BankIdentifier.identify(text)
 
         logger.warning(
-            "No transactions extracted from PDF. "
-            "Bank guessed: %s | Extracted text length: %d characters",
-            bank,
+            "Extracted %d characters from PDF. "
+            "Bank identified as: %s",
             len(text),
+            bank,
+        )
+
+        # First try the universal statement parser
+        transactions = UniversalStatementParser.parse(text)
+
+        logger.info(
+            "Universal parser extracted %d probable transactions",
+            len(transactions),
+        )
+
+        # If universal parser fails, try text transaction parser
+        if not transactions:
+
+            logger.info(
+                "Universal parser failed. "
+                "Trying text transaction parser."
+            )
+
+            transactions = TextTransactionParser.parse(text)
+
+            logger.info(
+                "Text transaction parser extracted %d probable transactions",
+            len(transactions),
+            )
+
+        if transactions:
+
+            categorized_transactions = []
+
+            for transaction in transactions:
+
+                categorized_transaction = (
+                    CategoryEngine.categorize(
+                        transaction
+                    )
+                )
+
+                categorized_transactions.append(
+                    categorized_transaction
+                )
+
+            logger.warning(
+                "Successfully categorized %d transactions "
+                "using universal parser",
+                len(categorized_transactions),
+            )
+
+            return {
+                "method": "universal-text-parser",
+                "bank": bank,
+                "transactions": categorized_transactions,
+            }
+
+        logger.warning(
+            "No transactions could be extracted from PDF."
         )
 
         return None
