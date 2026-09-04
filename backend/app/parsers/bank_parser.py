@@ -230,8 +230,8 @@ class BankStatementParser:
 
         # Fallback: Extract text for debugging and bank identification
         logger.info(
-            "Camelot could not extract transactions. "
-            "Trying PDF text extraction."
+           "PDF TEXT PREVIEW:\n%s",
+           text[:3000],
         )
 
         text = cls.extract_text(pdf_path)
