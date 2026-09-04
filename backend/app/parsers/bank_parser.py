@@ -207,8 +207,7 @@ class BankStatementParser:
         Parse a bank statement.
 
         First attempts table extraction with Camelot. If no transactions
-        are found, extracts PDF text and attempts to identify the bank
-        for debugging purposes.
+        are found, extracts PDF text for debugging and bank identification.
         """
 
         logger.info(
@@ -228,13 +227,20 @@ class BankStatementParser:
 
             return result
 
-        # Fallback: Extract text for debugging and bank identification
+        # Fallback: Extract text
         logger.info(
-           "PDF TEXT PREVIEW:\n%s",
-           text[:3000],
+            "Camelot could not extract transactions. "
+            "Trying PDF text extraction."
         )
 
+        # IMPORTANT: Define text first
         text = cls.extract_text(pdf_path)
+
+        # Then use text
+        logger.info(
+            "PDF TEXT PREVIEW:\n%s",
+            text[:3000],
+        )
 
         bank = BankIdentifier.identify(text)
 
@@ -245,5 +251,4 @@ class BankStatementParser:
             len(text),
         )
 
-        # No text-based transaction parser exists yet
         return None
