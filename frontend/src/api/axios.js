@@ -2,8 +2,6 @@ import axios from "axios";
 
 const api = axios.create({
     baseURL: "https://smartbudgetai-m5ys.onrender.com",
-    headers: {
-        "Content-Type": "application/json",
     },
 });
 
