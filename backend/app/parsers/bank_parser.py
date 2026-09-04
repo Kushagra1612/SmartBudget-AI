@@ -1,13 +1,16 @@
+import logging
+
 import camelot
 import pdfplumber
 
 from app.parsers.header_detector import HeaderDetector
 from app.parsers.bank_identifier import BankIdentifier
-
 from app.utils.parser_helpers import ParserHelper
 from app.utils.transaction_cleaner import TransactionCleaner
-
 from app.categorizer.category_engine import CategoryEngine
+
+
+logger = logging.getLogger(__name__)
 
 
 class BankStatementParser:
@@ -17,18 +20,19 @@ class BankStatementParser:
         """
         Extract tables using Camelot and return categorized transactions.
 
-        Tries "lattice" first (most accurate when it works, but only
-        detects tables with visible ruled borders around each cell,
-        which not every bank statement has), then falls back to
-        "stream" (finds columns by text alignment instead -- catches
-        statements with no drawn grid lines). Confirmed directly: a
-        borderless test table that lattice found zero rows in was
-        correctly picked up by stream.
+        First tries Camelot's lattice flavor for tables with visible
+        borders. If that does not produce usable transactions, it tries
+        the stream flavor for borderless tables.
         """
 
         for flavor in ("lattice", "stream"):
 
             try:
+                logger.info(
+                    "Trying Camelot '%s' parser for file: %s",
+                    flavor,
+                    pdf_path,
+                )
 
                 tables = camelot.read_pdf(
                     pdf_path,
@@ -36,60 +40,81 @@ class BankStatementParser:
                     flavor=flavor,
                 )
 
+                logger.info(
+                    "Camelot '%s' found %d tables",
+                    flavor,
+                    tables.n,
+                )
+
                 if tables.n == 0:
                     continue
 
                 cleaned_transactions = []
 
-                for table in tables:
+                for table_index, table in enumerate(tables):
+
+                    logger.info(
+                        "Processing table %d using '%s'",
+                        table_index + 1,
+                        flavor,
+                    )
 
                     df = table.df
 
                     if df.empty:
+                        logger.info(
+                            "Table %d is empty",
+                            table_index + 1,
+                        )
                         continue
+
+                    logger.info(
+                        "Table %d has %d rows and %d columns",
+                        table_index + 1,
+                        len(df),
+                        len(df.columns),
+                    )
 
                     # Detect header
                     df = HeaderDetector.detect(df)
 
-                    # Normalize columns
+                    # Normalize column names
                     df = ParserHelper.normalize_columns(df)
 
                     # Remove duplicate columns
                     df = df.loc[:, ~df.columns.duplicated()]
 
-                    records = df.to_dict(orient="records")
+                    records = df.to_dict(
+                        orient="records"
+                    )
 
                     for row in records:
 
                         transaction = {
-
                             "date": TransactionCleaner.clean_date(
                                 row.get("date", "")
                             ),
-
-                            "description": TransactionCleaner.clean_description(
-                                row.get("description", "")
+                            "description": (
+                                TransactionCleaner.clean_description(
+                                    row.get("description", "")
+                                )
                             ),
-
                             "debit": TransactionCleaner.clean_amount(
                                 row.get("debit", "")
                             ),
-
                             "credit": TransactionCleaner.clean_amount(
                                 row.get("credit", "")
                             ),
-
                             "balance": TransactionCleaner.clean_amount(
                                 row.get("balance", "")
                             ),
-
                         }
 
-                        # Skip invalid date
+                        # Skip rows with invalid dates
                         if transaction["date"] is None:
                             continue
 
-                        # Skip rows without description and amount
+                        # Skip completely empty transaction rows
                         if (
                             transaction["description"] == ""
                             and transaction["debit"] == 0
@@ -97,61 +122,128 @@ class BankStatementParser:
                         ):
                             continue
 
+                        # Categorize transaction
                         transaction = CategoryEngine.categorize(
                             transaction
                         )
 
-                        cleaned_transactions.append(transaction)
+                        cleaned_transactions.append(
+                            transaction
+                        )
+
+                logger.info(
+                    "Camelot '%s' extracted %d valid transactions",
+                    flavor,
+                    len(cleaned_transactions),
+                )
 
                 if cleaned_transactions:
-
                     return {
                         "method": f"camelot-{flavor}",
                         "transactions": cleaned_transactions,
                     }
 
-            except Exception as e:
+            except Exception:
+                logger.exception(
+                    "Camelot '%s' parsing failed for file: %s",
+                    flavor,
+                    pdf_path,
+                )
 
-                print(f"Camelot ({flavor}) parsing failed:", e)
+        logger.warning(
+            "No transactions could be extracted using Camelot"
+        )
 
         return None
 
     @staticmethod
     def extract_text(pdf_path: str):
+        """
+        Extract all available text from the PDF using pdfplumber.
+        """
 
         text = ""
 
-        with pdfplumber.open(pdf_path) as pdf:
+        try:
+            with pdfplumber.open(pdf_path) as pdf:
 
-            for page in pdf.pages:
+                logger.info(
+                    "PDF contains %d pages",
+                    len(pdf.pages),
+                )
 
-                extracted = page.extract_text()
+                for page_number, page in enumerate(
+                    pdf.pages,
+                    start=1,
+                ):
 
-                if extracted:
-                    text += extracted + "\n"
+                    extracted = page.extract_text()
+
+                    if extracted:
+                        text += extracted + "\n"
+
+                        logger.info(
+                            "Extracted %d characters from page %d",
+                            len(extracted),
+                            page_number,
+                        )
+                    else:
+                        logger.warning(
+                            "No text extracted from page %d",
+                            page_number,
+                        )
+
+        except Exception:
+            logger.exception(
+                "Failed to extract text from PDF: %s",
+                pdf_path,
+            )
 
         return text
 
     @classmethod
     def parse(cls, pdf_path: str):
+        """
+        Parse a bank statement.
 
+        First attempts table extraction with Camelot. If no transactions
+        are found, extracts PDF text and attempts to identify the bank
+        for debugging purposes.
+        """
+
+        logger.info(
+            "Starting bank statement parsing: %s",
+            pdf_path,
+        )
+
+        # Try table extraction
         result = cls.extract_tables(pdf_path)
 
         if result is not None:
+            logger.info(
+                "Successfully parsed %d transactions using %s",
+                len(result["transactions"]),
+                result["method"],
+            )
+
             return result
 
-        # Neither table-extraction flavor found anything usable. There's
-        # no text-based transaction parser here (yet) to fall back to --
-        # grabbing the text and guessed bank is purely for the log line
-        # below, so a failed upload leaves a trace of which bank it was
-        # and roughly how much text was in it, useful for figuring out
-        # which statement layouts still need support.
-        text = cls.extract_text(pdf_path)
-        bank = BankIdentifier.identify(text)
-
-        print(
-            f"No transactions extracted from PDF "
-            f"(bank guessed: {bank}, {len(text)} chars of text found)"
+        # Fallback: Extract text for debugging and bank identification
+        logger.info(
+            "Camelot could not extract transactions. "
+            "Trying PDF text extraction."
         )
 
+        text = cls.extract_text(pdf_path)
+
+        bank = BankIdentifier.identify(text)
+
+        logger.warning(
+            "No transactions extracted from PDF. "
+            "Bank guessed: %s | Extracted text length: %d characters",
+            bank,
+            len(text),
+        )
+
+        # No text-based transaction parser exists yet
         return None
