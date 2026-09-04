@@ -236,11 +236,12 @@ class BankStatementParser:
         # IMPORTANT: Define text first
         text = cls.extract_text(pdf_path)
 
-        # Then use text
-        logger.info(
-            "PDF TEXT PREVIEW:\n%s",
-            text[:3000],
-        )
+        # TEMPORARY DEBUG: Print extracted text directly to Render logs
+        print("\n" + "=" * 60)
+        print("PDF TEXT PREVIEW")
+        print("=" * 60)
+        print(text[:3000])
+        print("=" * 60 + "\n")
 
         bank = BankIdentifier.identify(text)
 
