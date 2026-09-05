@@ -138,6 +138,7 @@ export default function Goals() {
                             goal={goal}
                             onDelete={removeGoal}
                             onEdit={editGoal}
+                            onContribute={updateExistingGoal}
                         />
 
                     ))}

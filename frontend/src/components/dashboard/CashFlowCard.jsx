@@ -14,7 +14,9 @@ export default function CashFlowCard({
             </p>
 
             <h2 className="text-3xl font-bold mt-3">
-                ₹{Number(amount).toLocaleString("en-IN")}
+                ₹{Number(amount).toLocaleString("en-IN", {
+                    maximumFractionDigits: 0,
+                })}
             </h2>
 
             {change && (
