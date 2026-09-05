@@ -7,6 +7,7 @@ from app.database.session import get_db
 from app.dependencies.auth import get_current_user
 from app.models.user import User
 from app.schemas.goal_schema import (
+    GoalContribution,
     GoalCreate,
     GoalResponse,
     GoalUpdate,
@@ -29,11 +30,13 @@ def create_goal(
     current_user: User = Depends(get_current_user),
 ):
 
-    return GoalService.create_goal(
+    new_goal = GoalService.create_goal(
         db=db,
         user_id=current_user.id,
         goal=goal,
     )
+
+    return GoalService.to_response(new_goal)
 
 
 @router.get(
@@ -45,10 +48,15 @@ def get_goals(
     current_user: User = Depends(get_current_user),
 ):
 
-    return GoalService.get_user_goals(
+    goals = GoalService.get_user_goals(
         db=db,
         user_id=current_user.id,
     )
+
+    return [
+        GoalService.to_response(goal)
+        for goal in goals
+    ]
 
 
 @router.get(
@@ -73,7 +81,7 @@ def get_goal(
             detail="Goal not found.",
         )
 
-    return goal
+    return GoalService.to_response(goal)
 
 
 @router.put(
@@ -89,12 +97,48 @@ def update_goal(
 
     try:
 
-        return GoalService.update_goal(
+        updated_goal = GoalService.update_goal(
             db=db,
             user_id=current_user.id,
             goal_id=goal_id,
             goal=goal,
         )
+
+        return GoalService.to_response(updated_goal)
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=404,
+            detail=str(e),
+        )
+
+
+@router.post(
+    "/{goal_id}/contribute",
+    response_model=GoalResponse,
+)
+def contribute_to_goal(
+    goal_id: UUID,
+    contribution: GoalContribution,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Add money toward a goal. Increments the goal's current_amount by
+    `contribution.amount` -- this is the endpoint an "Add
+    Contribution" / "Add Money" button on the frontend should call.
+    """
+
+    try:
+
+        goal = GoalService.contribute_to_goal(
+            db=db,
+            user_id=current_user.id,
+            goal_id=goal_id,
+            amount=contribution.amount,
+        )
+
+        return GoalService.to_response(goal)
 
     except ValueError as e:
         raise HTTPException(

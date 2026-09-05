@@ -1,5 +1,7 @@
 from uuid import UUID
 
+from decimal import Decimal
+
 from sqlalchemy.orm import Session
 
 from app.models.user_goal import UserGoal
@@ -57,6 +59,26 @@ class GoalRepository:
         db: Session,
         goal: UserGoal,
     ) -> UserGoal:
+
+        db.commit()
+        db.refresh(goal)
+
+        return goal
+
+    @staticmethod
+    def add_contribution(
+        db: Session,
+        *,
+        goal: UserGoal,
+        amount: Decimal,
+    ) -> UserGoal:
+        """
+        Increment current_amount by `amount` (rather than replacing
+        it), so concurrent contributions and simple "add money" UI
+        actions don't require the caller to know the running total.
+        """
+
+        goal.current_amount = goal.current_amount + amount
 
         db.commit()
         db.refresh(goal)

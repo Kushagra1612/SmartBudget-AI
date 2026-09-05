@@ -10,6 +10,13 @@ easy to see the whole backend surface at a glance as phases are added.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+
 from app.config import settings
 from app.routers import (
     ai_router,

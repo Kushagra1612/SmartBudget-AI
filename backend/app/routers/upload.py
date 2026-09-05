@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.dependencies.auth import get_current_user
 from app.models.user import User
-from app.schemas.upload import UploadResponse
+from app.schemas.upload import TransactionResponse, UploadResponse
 from app.services.pdf_service import PDFService
 from app.services.statement_service import StatementService
 from app.services.transaction_service import TransactionService
@@ -74,13 +74,22 @@ async def upload_statement(
     )
 
     if existing is not None:
-        raise HTTPException(
-            status_code=409,
-            detail=(
-                "You've already uploaded this exact statement "
-                f"(on {existing.uploaded_at:%b %d, %Y}). "
-                "Re-uploading it would duplicate every transaction in it."
-            ),
+
+        logger.info(
+            "User %s re-uploaded a previously-seen statement "
+            "(originally uploaded %s). Deleting the old statement "
+            "and its transactions before reprocessing.",
+            current_user.id,
+            existing.uploaded_at,
+        )
+
+        # Deleting the statement cascade-deletes its transactions too
+        # (ON DELETE CASCADE, per StatementRepository.delete), so this
+        # fully clears out the old data before we parse and save the
+        # "new" upload below.
+        StatementService.delete_statement(
+            db=db,
+            statement_id=existing.id,
         )
 
     file.file.seek(0)
@@ -156,6 +165,26 @@ async def upload_statement(
             statement.id,
         )
 
+        # Validate transactions against the response schema BEFORE returning.
+        # If parser output doesn't match TransactionResponse's fields/types,
+        # this will raise here (inside our try block, so it gets logged with
+        # a full traceback) instead of failing silently during FastAPI's own
+        # response_model serialization, which produces a 500 with no log.
+        try:
+            validated_transactions = [
+                TransactionResponse(**t) for t in transactions
+            ]
+        except Exception as validation_error:
+            logger.exception(
+                "Transaction validation against response schema failed "
+                "for statement %s",
+                statement.id,
+            )
+            raise HTTPException(
+                status_code=500,
+                detail=f"Transaction formatting error: {str(validation_error)}",
+            )
+
         return {
             "statement_id": str(statement.id),
             "filename": file.filename,
@@ -165,7 +194,7 @@ async def upload_statement(
             "transactions_found": len(saved_transactions),
             "message": "Statement uploaded successfully.",
             "method": statement.parser_method,
-            "transactions": transactions,
+            "transactions": validated_transactions,
         }
 
     except HTTPException:

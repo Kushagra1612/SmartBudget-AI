@@ -9,16 +9,43 @@
 
     "Food": [
         "SWIGGY",
+        "SWIGGY INSTAMART",
         "ZOMATO",
         "DOMINOS",
         "PIZZA HUT",
-        "MCDONALDS"
+        "MCDONALDS",
+        "BURGER KING",
+        "KFC",
+        "WOWMOMO",
+        "WOW MOMO",
+        "STARBUCKS",
+        "SUBWAY",
+        "CHAAYOS",
+        "EATCLUB"
+    ],
+
+    "Grocery": [
+        "BLINKIT",
+        "ZEPTO",
+        "BIGBASKET",
+        "BIG BASKET",
+        "DUNZO",
+        "JIOMART",
+        "DMART",
+        "CITYMALL"
     ],
 
     "Travel": [
         "UBER",
         "OLA",
-        "IRCTC"
+        "RAPIDO",
+        "IRCTC",
+        "ZOOMCAR",
+        "REDBUS",
+        "MAKEMYTRIP",
+        "GOIBIBO",
+        "FLIXBUS",
+        "NUEGO"
     ],
 
     "Bills": [
@@ -26,13 +53,17 @@
         "JIO",
         "BSNL",
         "VODAFONE",
-        "ELECTRICITY"
+        "ELECTRICITY",
+        "RENTMOJO",
+        "NOBROKER"
     ],
 
     "Entertainment": [
         "NETFLIX",
         "SPOTIFY",
-        "PRIME VIDEO"
+        "PRIME VIDEO",
+        "HOTSTAR",
+        "BOOKMYSHOW"
     ],
 
     "Income": [

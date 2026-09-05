@@ -46,6 +46,29 @@ class UniversalStatementParser:
         "%Y-%m-%d",
     ]
 
+    # Footer/boilerplate keywords, matched against the line with ALL
+    # whitespace and punctuation stripped out first. This sidesteps the
+    # inconsistent spacing in PDF-extracted text (e.g. "GSTIN" running
+    # directly into the next word with no space, or "This is a computer
+    # generated statement" appearing with zero spaces at all) that made
+    # word-boundary regexes unreliable. Add new phrases here as
+    # lowercase, no-space/punctuation strings.
+    FOOTER_KEYWORDS = (
+        "statementsummary",
+        "drcountcrcount",
+        "registeredoffice",
+        "gstin",
+        "gstn",
+        "closingbalanceincludes",
+        "contentsofthisstatement",
+        "computergeneratedstatement",
+        "doesnotrequiresignature",
+        "generatedon",
+        "generatedby",
+        "requestingbranchcode",
+        "endofstatement",
+    )
+
     @classmethod
     def parse_date(cls, value: str):
 
@@ -110,6 +133,35 @@ class UniversalStatementParser:
         return parsed_date is not None
 
     @classmethod
+    def is_footer_line(
+        cls,
+        line: str,
+    ) -> bool:
+        """
+        True once we've reached statement boilerplate that comes after
+        (or between) real transactions -- summary totals, legal
+        notices, GST info, branch address, "computer generated
+        statement" disclaimers, etc. Used to skip these lines so they
+        never get glued onto a transaction's description.
+
+        Punctuation and whitespace are stripped before matching,
+        because PDF text extraction often squashes these phrases
+        together with no spaces at all (e.g. "Thisisacomputergenerated
+        statement"), which made word-boundary regexes unreliable.
+        """
+
+        squashed = re.sub(
+            r"[^a-z0-9]",
+            "",
+            line.lower(),
+        )
+
+        return any(
+            keyword in squashed
+            for keyword in cls.FOOTER_KEYWORDS
+        )
+
+    @classmethod
     def split_transaction_blocks(
         cls,
         text: str,
@@ -125,9 +177,15 @@ class UniversalStatementParser:
 
         current_block = []
 
+        in_footer = False
+
         for line in lines:
 
             if cls.is_transaction_start(line):
+
+                # A genuine transaction always resumes normal
+                # processing, even if we were mid-footer.
+                in_footer = False
 
                 if current_block:
 
@@ -137,7 +195,25 @@ class UniversalStatementParser:
 
                 current_block = [line]
 
-            elif current_block:
+                continue
+
+            if in_footer:
+
+                # Already inside a footer/boilerplate section --
+                # skip every line unconditionally until the next
+                # real transaction starts. This handles footers
+                # that span multiple physical PDF lines, even when
+                # a single sentence is split mid-phrase across a
+                # line break (which defeated a plain per-line
+                # keyword check).
+                continue
+
+            if cls.is_footer_line(line):
+
+                in_footer = True
+                continue
+
+            if current_block:
 
                 current_block.append(line)
 
@@ -200,6 +276,13 @@ class UniversalStatementParser:
             " ",
             description,
         ).strip()
+
+        # Safety net: even with footer detection above, cap description
+        # length defensively so a future edge case can never crash the
+        # DB insert again. The transactions.description column is
+        # VARCHAR(500); stay comfortably under that.
+        if len(description) > 480:
+            description = description[:480].rstrip()
 
         return description
 

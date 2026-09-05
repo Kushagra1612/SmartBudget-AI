@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.models.user_goal import UserGoal
 from app.repositories.goal_repository import GoalRepository
-from app.schemas.goal_schema import GoalCreate, GoalUpdate
+from app.schemas.goal_schema import GoalCreate, GoalResponse, GoalUpdate
 
 
 class GoalService:
@@ -100,6 +100,43 @@ class GoalService:
         )
 
     @staticmethod
+    def contribute_to_goal(
+        db: Session,
+        *,
+        user_id: UUID,
+        goal_id: UUID,
+        amount: Decimal,
+    ) -> UserGoal:
+        """
+        Add money toward a goal. Increments current_amount rather
+        than replacing it, so the frontend just sends "how much was
+        added" (e.g. from an "Add Contribution" button) instead of
+        having to know and resend the running total.
+        """
+
+        goal = GoalRepository.get_by_id(
+            db=db,
+            goal_id=goal_id,
+        )
+
+        if goal is None:
+            raise ValueError("Goal not found.")
+
+        if goal.user_id != user_id:
+            raise ValueError("Goal not found.")
+
+        if goal.status != "ACTIVE":
+            raise ValueError(
+                "Cannot contribute to a goal that is not active."
+            )
+
+        return GoalRepository.add_contribution(
+            db=db,
+            goal=goal,
+            amount=amount,
+        )
+
+    @staticmethod
     def delete_goal(
         db: Session,
         *,
@@ -157,3 +194,31 @@ class GoalService:
                 Decimal("0.01")
             ),
         }
+
+    @staticmethod
+    def to_response(
+        goal: UserGoal,
+    ) -> GoalResponse:
+        """
+        Build the full API response for a goal, including the
+        computed progress fields from calculate_progress(). Every
+        router endpoint should return goals through this helper so
+        the frontend consistently receives remaining/progress
+        percentage/days left/monthly required, instead of only the
+        raw stored columns.
+        """
+
+        progress = GoalService.calculate_progress(goal)
+
+        return GoalResponse(
+            id=goal.id,
+            title=goal.title,
+            target_amount=goal.target_amount,
+            current_amount=goal.current_amount,
+            target_date=goal.target_date,
+            status=goal.status,
+            remaining=progress["remaining"],
+            progress_percentage=progress["progress"],
+            days_left=progress["days_left"],
+            monthly_required=progress["monthly_required"],
+        )

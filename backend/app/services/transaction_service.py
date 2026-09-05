@@ -76,7 +76,16 @@ class TransactionService:
                     transaction_type=transaction_type,
                     category=category,
                     merchant=tx.get("merchant", ""),
-                    description=tx.get("description", ""),
+                    description=(tx.get("description") or "")[:500],
+                    # This field was previously missing entirely --
+                    # CategoryEngine.categorize() always computed
+                    # payment_mode on the parsed dict via
+                    # PaymentDetector.detect(), but it was never passed
+                    # into the Transaction(...) constructor here, so it
+                    # was silently dropped before ever reaching the
+                    # database (every row was saved with payment_mode
+                    # = NULL regardless of what the detector found).
+                    payment_mode=tx.get("payment_mode", "OTHER"),
                     source="pdf",
                     transaction_date=tx.get("date"),
                 )
