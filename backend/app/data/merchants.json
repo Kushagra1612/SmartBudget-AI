@@ -15,6 +15,7 @@
         "PIZZA HUT",
         "MCDONALDS",
         "BURGER KING",
+        "BURGER PANDA",
         "KFC",
         "WOWMOMO",
         "WOW MOMO",
@@ -35,7 +36,7 @@
         "CITYMALL"
     ],
 
-    "Travel": [
+    "Transport": [
         "UBER",
         "OLA",
         "RAPIDO",
@@ -45,10 +46,13 @@
         "MAKEMYTRIP",
         "GOIBIBO",
         "FLIXBUS",
-        "NUEGO"
+        "NUEGO",
+        "DELHI METRO",
+        "DMRC",
+        "NMRC"
     ],
 
-    "Bills": [
+    "Utilities": [
         "AIRTEL",
         "JIO",
         "BSNL",
@@ -63,12 +67,41 @@
         "SPOTIFY",
         "PRIME VIDEO",
         "HOTSTAR",
-        "BOOKMYSHOW"
+        "BOOKMYSHOW",
+        "PVR",
+        "PVR CINEMA",
+        "CINEPOLIS",
+        "INOX"
     ],
 
-    "Income": [
+    "Salary": [
         "SALARY",
         "PAYROLL",
         "INTEREST"
+    ],
+
+    "Education": [
+        "BYJU",
+        "BYJUS",
+        "UNACADEMY",
+        "UPGRAD",
+        "VEDANTU",
+        "PHYSICSWALLAH",
+        "PW",
+        "CODING NINJAS",
+        "UDEMY",
+        "COURSERA"
+    ],
+
+    "Investment": [
+        "ZERODHA",
+        "GROWW",
+        "UPSTOX",
+        "ANGEL ONE",
+        "ANGELONE",
+        "PAYTM MONEY",
+        "KUVERA",
+        "SMALLCASE",
+        "INDMONEY"
     ]
 }

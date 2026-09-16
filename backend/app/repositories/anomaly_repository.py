@@ -69,3 +69,26 @@ class AnomalyRepository:
             .order_by(Anomaly.confidence_score.desc())
             .all()
         )
+
+    @staticmethod
+    def delete_by_transaction_id(
+        db: Session,
+        *,
+        transaction_id: UUID,
+    ) -> None:
+        """
+        Remove any anomaly flag tied to a transaction. Used when a
+        transaction is manually edited (category/merchant corrected),
+        so a stale flag from the old, wrong categorization doesn't
+        linger forever -- if the transaction is still genuinely
+        unusual under its new category, the next detection scan will
+        naturally re-flag it on its own merits.
+        """
+
+        (
+            db.query(Anomaly)
+            .filter(Anomaly.transaction_id == transaction_id)
+            .delete()
+        )
+
+        db.commit()

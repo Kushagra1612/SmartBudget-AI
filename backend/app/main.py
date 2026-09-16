@@ -25,6 +25,7 @@ from app.routers import (
     budget_router,
     dashboard_router,
     goal_router,
+    statements_router,
     transactions_router,
     upload_router,
 )
@@ -69,4 +70,5 @@ app.include_router(budget_router)
 app.include_router(dashboard_router)
 app.include_router(ai_router)
 app.include_router(goal_router)
+app.include_router(statements_router)
 app.include_router(anomaly_router)

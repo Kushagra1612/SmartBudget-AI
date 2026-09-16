@@ -355,9 +355,24 @@ class UniversalStatementParser:
 
         parsed_transactions = []
 
-        for index, transaction in enumerate(
-            transactions
-        ):
+        # Transactions here are in the order they were parsed from the
+        # PDF, which for this parser is chronological ascending
+        # (oldest first) -- confirmed by comparing consecutive parsed
+        # dates. Each row's balance already reflects THAT row's own
+        # debit/credit applied, so to tell whether row i was a debit
+        # or credit, compare it to the PREVIOUS row's balance (the
+        # transaction that came right before it in time) -- not the
+        # next one.
+        #
+        # Comparing against the next row instead (the old logic) means
+        # row i's classification ends up depending on what row i+1
+        # happens to be, not on row i itself -- so some transactions
+        # get mislabeled whenever a neighboring transaction moves the
+        # balance in the opposite direction. This was reported as
+        # "some expenses show up as income".
+        previous_balance = None
+
+        for transaction in transactions:
 
             amount = transaction["amount"]
             current_balance = transaction["balance"]
@@ -365,44 +380,32 @@ class UniversalStatementParser:
             debit = 0.0
             credit = 0.0
 
-            if index < len(transactions) - 1:
+            if previous_balance is None:
 
-                next_balance = transactions[
-                    index + 1
-                ]["balance"]
-
-                difference = (
-                    next_balance
-                    - current_balance
-                )
-
-                # Statements listed newest → oldest:
-                #
-                # Debit:
-                # Older balance > current balance
-                #
-                # Credit:
-                # Older balance < current balance
-
-                if difference > 0:
-
-                    debit = amount
-
-                elif difference < 0:
-
-                    credit = amount
-
-                else:
-
-                    # If balances are identical,
-                    # use debit as a safe fallback.
-                    debit = amount
+                # First transaction in the statement -- there's no
+                # earlier balance to compare against (unless we later
+                # add parsing of an explicit "Opening Balance" line).
+                # Fall back to debit, matching the previous
+                # unrecoverable-edge-case behavior.
+                debit = amount
 
             else:
 
-                # Cannot reliably infer the final
-                # transaction without another balance.
-                debit = amount
+                difference = current_balance - previous_balance
+
+                if difference > 0:
+
+                    credit = amount
+
+                elif difference < 0:
+
+                    debit = amount
+
+                else:
+
+                    # If balances are identical, use debit as a
+                    # safe fallback.
+                    debit = amount
 
             parsed_transactions.append(
                 {
@@ -415,6 +418,8 @@ class UniversalStatementParser:
                     "balance": current_balance,
                 }
             )
+
+            previous_balance = current_balance
 
         return parsed_transactions
 

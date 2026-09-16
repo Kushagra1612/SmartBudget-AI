@@ -6,7 +6,7 @@ from langgraph.graph import END, START, StateGraph
 
 from app.ai.context_builder import ContextBuilder
 from app.ai.gemini_service import GeminiService
-from app.ai.prompts import CHAT_PROMPT, FINANCIAL_ADVICE_PROMPT
+from app.ai.prompts import CHAT_PROMPT, FINANCIAL_ADVICE_PROMPT, PULSE_PROMPT
 from app.ai.tools.budget_tool import BudgetTool
 from app.ai.tools.dashboard_tool import DashboardTool
 from app.ai.tools.goal_tool import GoalTool
@@ -210,18 +210,31 @@ def _route_to_agents(state: AgentState) -> list[str]:
 
 def _build_advice_analytics(agent_outputs: dict[str, Any]):
     """
-    Reassembles the same analytics object FINANCIAL_ADVICE_PROMPT
-    expects, from data the agents already fetched -- no separate direct
-    DB calls duplicating what dashboard_agent/budget_agent/spending_agent
-    just did.
+    Reassembles the same analytics object FINANCIAL_ADVICE_PROMPT /
+    PULSE_PROMPT expect, from data the agents already fetched -- no
+    separate direct DB calls duplicating what
+    dashboard_agent/budget_agent/spending_agent just did.
+
+    Guards against a tool having errored out (_make_agent_node stores
+    {"status": "error", ...} rather than the real object in that case)
+    -- a plain truthiness check isn't enough here since an error dict
+    is still truthy, so this checks the shape too before accessing
+    dashboard-specific attributes.
     """
 
     dashboard = agent_outputs.get("dashboard")
     budget_summary = agent_outputs.get("budget", [])
     category_totals = agent_outputs.get("spending", {})
 
-    income = dashboard.monthly_income if dashboard else 0
-    expenses = dashboard.monthly_expenses if dashboard else 0
+    if dashboard and hasattr(dashboard, "monthly_income"):
+        income = dashboard.monthly_income
+        expenses = dashboard.monthly_expenses
+    else:
+        income = 0
+        expenses = 0
+
+    if not isinstance(budget_summary, list):
+        budget_summary = []
 
     overspent_categories = sum(
         1
@@ -240,16 +253,49 @@ def _build_advice_analytics(agent_outputs: dict[str, Any]):
 
 def responder_node(state: AgentState) -> dict:
     """
-    Synthesizes the final answer. Uses FINANCIAL_ADVICE_PROMPT for
-    pulse/advice (same structured analytics as before) and CHAT_PROMPT
-    for chat (same context+memory+question shape as before) -- the
-    prompts themselves are unchanged, only how they get their inputs.
+    Synthesizes the final answer.
+
+    - "pulse" uses PULSE_PROMPT -- a single short status line for the
+      dashboard's quick daily glance.
+    - "advice" uses FINANCIAL_ADVICE_PROMPT -- the full structured
+      multi-section breakdown.
+    - "chat" uses CHAT_PROMPT -- the same context+memory+question
+      shape as before.
+
+    Pulse and advice used to share FINANCIAL_ADVICE_PROMPT, with pulse
+    just taking the first line of that multi-section response -- which
+    in practice was almost always throwaway preamble ("Here is your
+    analysis:") rather than an actual insight, since nothing told the
+    model that line specifically needed to stand alone. Splitting them
+    out means each prompt is actually shaped for what it's used for.
     """
 
     llm = GeminiService()
     agent_outputs = state.get("agent_outputs", {})
 
-    if state["mode"] in ("pulse", "advice"):
+    if state["mode"] == "pulse":
+
+        analytics = _build_advice_analytics(agent_outputs)
+
+        prompt = PULSE_PROMPT.format(
+            financial_score=analytics.financial_score.score,
+            income=analytics.savings_analysis.income,
+            expenses=analytics.savings_analysis.expenses,
+            savings=analytics.savings_analysis.savings,
+            savings_rate=analytics.savings_analysis.savings_rate,
+            budget_utilization=analytics.budget_analysis.overall_utilization,
+            overspent_categories=analytics.budget_analysis.overspent_categories,
+            top_category=analytics.spending_analysis.top_category,
+        )
+
+        response = llm.generate(prompt)
+
+        return {
+            "final_response": response.strip(),
+            "status": analytics.financial_score.status,
+        }
+
+    if state["mode"] == "advice":
 
         analytics = _build_advice_analytics(agent_outputs)
 

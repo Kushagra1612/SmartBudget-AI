@@ -122,6 +122,39 @@ class TransactionRepository:
         )
 
     @staticmethod
+    def get_by_id(
+        db: Session,
+        transaction_id: UUID,
+    ) -> Transaction | None:
+        """
+        Return a single non-deleted transaction by ID, or None.
+        """
+
+        return (
+            db.query(Transaction)
+            .filter(
+                Transaction.id == transaction_id,
+                Transaction.is_deleted.is_(False),
+            )
+            .first()
+        )
+
+    @staticmethod
+    def update(
+        db: Session,
+        transaction: Transaction,
+    ) -> Transaction:
+        """
+        Persist changes already set on a Transaction instance (e.g.
+        via setattr in the service layer) and return the refreshed row.
+        """
+
+        db.commit()
+        db.refresh(transaction)
+
+        return transaction
+
+    @staticmethod
     def delete_by_statement_id(
         db: Session,
         statement_id: UUID,

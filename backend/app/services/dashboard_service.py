@@ -21,6 +21,38 @@ from app.services.statement_service import StatementService
 class DashboardService:
 
     @staticmethod
+    def _previous_period(month: int, year: int) -> tuple[int, int]:
+        """
+        Return the (month, year) immediately before the given one,
+        rolling over into the previous year when month is January.
+        """
+
+        if month == 1:
+            return 12, year - 1
+
+        return month - 1, year
+
+    @staticmethod
+    def _percentage_change(
+        current: "Decimal",
+        previous: "Decimal",
+    ) -> float | None:
+        """
+        Percentage change from `previous` to `current`. None when
+        `previous` is 0, since the percentage is undefined in that
+        case (there's nothing to compare against -- e.g. a brand new
+        user with no prior month of data).
+        """
+
+        if previous == 0:
+            return None
+
+        return round(
+            float((current - previous) / previous * 100),
+            2,
+        )
+
+    @staticmethod
     def get_dashboard(
         db: Session,
         *,
@@ -51,6 +83,45 @@ class DashboardService:
         )
 
         savings = income - expenses
+
+        # Month-over-month trend -- reuses the same repository methods
+        # against the previous month/year, so no new queries needed
+        # beyond calling them a second time.
+        previous_month, previous_year = DashboardService._previous_period(
+            month,
+            year,
+        )
+
+        previous_income = DashboardRepository.get_monthly_income(
+            db=db,
+            user_id=user_id,
+            month=previous_month,
+            year=previous_year,
+        )
+
+        previous_expenses = DashboardRepository.get_monthly_expenses(
+            db=db,
+            user_id=user_id,
+            month=previous_month,
+            year=previous_year,
+        )
+
+        previous_savings = previous_income - previous_expenses
+
+        income_change_percentage = DashboardService._percentage_change(
+            income,
+            previous_income,
+        )
+
+        expenses_change_percentage = DashboardService._percentage_change(
+            expenses,
+            previous_expenses,
+        )
+
+        savings_change_percentage = DashboardService._percentage_change(
+            savings,
+            previous_savings,
+        )
 
         total_transactions = DashboardRepository.get_total_transactions(
             db=db,
@@ -138,6 +209,9 @@ class DashboardService:
             savings=savings,
             total_transactions=total_transactions,
             total_budgets=total_budgets,
+            income_change_percentage=income_change_percentage,
+            expenses_change_percentage=expenses_change_percentage,
+            savings_change_percentage=savings_change_percentage,
             analytics=AnalyticsResponse(
                 financial_score=FinancialScoreResponse(
                     score=analytics.financial_score.score,

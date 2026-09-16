@@ -57,7 +57,11 @@ class AIService:
         )
 
         return {
-            "message": result["final_response"].split("\n")[0],
+            # PULSE_PROMPT now returns a single clean sentence directly
+            # (previously this sliced the first line off the full
+            # multi-section FINANCIAL_ADVICE_PROMPT response, which was
+            # usually just intro preamble rather than a real insight).
+            "message": result["final_response"].strip(),
             "status": result["status"],
             "agents_used": result["route"],
         }

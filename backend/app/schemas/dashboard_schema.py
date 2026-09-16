@@ -90,3 +90,11 @@ class DashboardResponse(BaseModel):
     top_categories: list[TopCategory]
 
     recent_transactions: list[RecentTransaction]
+
+    # Percentage change vs the previous month, e.g. 12.5 means "up
+    # 12.5%". None when there's no previous-month data to compare
+    # against (e.g. a brand new user, or previous income/expenses of
+    # exactly 0 which would make the percentage undefined).
+    income_change_percentage: float | None = None
+    expenses_change_percentage: float | None = None
+    savings_change_percentage: float | None = None

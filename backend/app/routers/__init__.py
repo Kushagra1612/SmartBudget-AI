@@ -6,6 +6,7 @@ from .dashboard import router as dashboard_router
 from .goal import router as goal_router
 from .transactions import router as transactions_router
 from .upload import router as upload_router
+from .statements import router as statements_router
 
 __all__ = [
     "ai_router",
@@ -16,4 +17,5 @@ __all__ = [
     "goal_router",
     "transactions_router",
     "upload_router",
+    "statements_router",
 ]

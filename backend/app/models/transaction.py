@@ -34,6 +34,7 @@ class TransactionCategory(str, enum.Enum):
     EDUCATION = "Education"
     SALARY = "Salary"
     INVESTMENT = "Investment"
+    GROCERY = "Grocery"
     OTHER = "Other"
 
 
@@ -183,4 +184,14 @@ class Transaction(Base):
         "Anomaly",
         back_populates="transaction",
         uselist=False,
+        # anomalies.transaction_id already has ON DELETE CASCADE at
+        # the database level, but SQLAlchemy's ORM doesn't trust that
+        # by default -- without this, deleting a transaction makes
+        # SQLAlchemy try to first NULL out the linked anomaly's
+        # transaction_id (its default "disassociate" behavior), which
+        # fails the NOT NULL constraint on that column before the
+        # database's own cascade ever runs. passive_deletes=True tells
+        # SQLAlchemy to skip that and let the database's ON DELETE
+        # CASCADE handle removing the anomaly row itself.
+        passive_deletes=True,
     )
