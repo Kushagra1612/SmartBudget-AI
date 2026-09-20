@@ -5,12 +5,15 @@ export default function TransactionList({
     search,
     category,
     type,
+    dateFrom,
+    dateTo,
 }) {
 
     const {
         transactions,
         loading,
         error,
+        refetch,
     } = useTransactions();
 
     if (loading) {
@@ -48,10 +51,19 @@ export default function TransactionList({
             type === "" ||
             transaction.transaction_type === type;
 
+        // transaction_date comes back as an ISO "YYYY-MM-DD" string,
+        // same format <input type="date"> produces -- so plain string
+        // comparison sorts/compares correctly without needing to
+        // parse either side into a Date object.
+        const matchesDateRange =
+            (!dateFrom || transaction.transaction_date >= dateFrom) &&
+            (!dateTo || transaction.transaction_date <= dateTo);
+
         return (
             matchesSearch &&
             matchesCategory &&
-            matchesType
+            matchesType &&
+            matchesDateRange
         );
 
     });
@@ -85,6 +97,7 @@ export default function TransactionList({
                 <TransactionCard
                     key={transaction.id}
                     transaction={transaction}
+                    onUpdated={refetch}
                 />
 
             ))}

@@ -34,7 +34,10 @@ export default function ChatInput({
                 placeholder="Ask SmartBudget AI anything..."
                 className="
                     flex-1
+                    bg-[var(--surface)]
+                    text-[var(--text)]
                     border
+                    border-[var(--border)]
                     rounded-xl
                     px-5
                     py-4

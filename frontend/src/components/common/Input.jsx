@@ -25,7 +25,7 @@ export default function Input({
                     flex
                     items-center
                     gap-3
-                    bg-white
+                    bg-[var(--surface)]
                     border
                     rounded-2xl
                     px-4
@@ -34,13 +34,13 @@ export default function Input({
                     transition-all
                     ${error
                         ? "border-red-500"
-                        : "border-gray-200 focus-within:border-[var(--primary)]"}
+                        : "border-[var(--border)] focus-within:border-[var(--primary)]"}
                 `}
             >
                 {Icon && (
                     <Icon
                         size={20}
-                        className="text-gray-400"
+                        className="text-[var(--text-light)]"
                     />
                 )}
 
@@ -50,7 +50,7 @@ export default function Input({
                         outline-none
                         bg-transparent
                         text-[var(--text)]
-                        placeholder:text-gray-400
+                        placeholder:text-[var(--text-light)]
                     "
                     type={type}
                     placeholder={placeholder}

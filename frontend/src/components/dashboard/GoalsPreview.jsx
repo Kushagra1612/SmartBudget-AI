@@ -47,7 +47,7 @@ export default function GoalsPreview() {
 
                 {goals.length === 0 && (
 
-                    <p className="text-gray-500">
+                    <p className="text-[var(--text-light)]">
 
                         No goals created yet.
 
@@ -77,7 +77,7 @@ export default function GoalsPreview() {
 
                                     </h3>
 
-                                    <p className="text-sm text-gray-500">
+                                    <p className="text-sm text-[var(--text-light)]">
 
                                         ₹{Number(goal.current_amount).toLocaleString("en-IN")}
                                         {" / "}
@@ -95,7 +95,7 @@ export default function GoalsPreview() {
 
                             </div>
 
-                            <div className="mt-3 h-2 bg-gray-200 rounded-full">
+                            <div className="mt-3 h-2 bg-[var(--bg)] rounded-full">
 
                                 <div
                                     className="h-2 rounded-full bg-[var(--primary)] transition-all duration-500"
@@ -106,7 +106,7 @@ export default function GoalsPreview() {
 
                             </div>
 
-                            <div className="flex justify-between mt-2 text-xs text-gray-500">
+                            <div className="flex justify-between mt-2 text-xs text-[var(--text-light)]">
 
                                 <span>
 

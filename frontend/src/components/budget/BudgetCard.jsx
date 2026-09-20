@@ -34,7 +34,7 @@ export default function BudgetCard({
 
     return (
 
-        <div className="bg-white rounded-xl shadow p-6">
+        <div className="bg-[var(--surface)] text-[var(--text)] border border-[var(--border)] rounded-xl shadow-[var(--shadow)] p-6">
 
             <h2 className="text-xl font-bold">
                 {budget.category}
@@ -44,7 +44,7 @@ export default function BudgetCard({
                 ₹{budget.spent} / ₹{budget.monthly_limit}
             </p>
 
-            <div className="w-full h-3 bg-gray-200 rounded-full mt-4">
+            <div className="w-full h-3 bg-[var(--bg)] rounded-full mt-4">
 
                 <div
                     className="bg-blue-500 h-3 rounded-full"
@@ -55,7 +55,7 @@ export default function BudgetCard({
 
             </div>
 
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-[var(--text-light)]">
                 {percentage.toFixed(0)}%
             </p>
 

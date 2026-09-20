@@ -8,7 +8,7 @@ export default function ChatHeader() {
                 SmartBudget AI
             </h1>
 
-            <p className="text-gray-500 mt-2">
+            <p className="text-[var(--text-light)] mt-2">
                 Ask anything about your finances.
             </p>
 

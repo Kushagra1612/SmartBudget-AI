@@ -12,7 +12,7 @@ function AgentsUsedBadge({ agents }) {
     );
 
     return (
-        <p className="mt-3 text-xs text-gray-400">
+        <p className="mt-3 text-xs text-[var(--text-light)]">
             Consulted: {labels.join(", ")}
         </p>
     );
@@ -34,10 +34,10 @@ export default function ChatMessage({ message }) {
         >
 
             <div
-                className={`max-w-[75%] rounded-2xl px-5 py-4 shadow ${
+                className={`max-w-[75%] rounded-2xl px-5 py-4 shadow-[var(--shadow)] ${
                     isUser
                         ? "bg-blue-600 text-white"
-                        : "bg-white text-gray-900 border"
+                        : "bg-[var(--surface)] text-[var(--text)] border border-[var(--border)]"
                 }`}
             >
 
@@ -49,7 +49,14 @@ export default function ChatMessage({ message }) {
 
                     <>
 
-                        <article className="prose prose-sm max-w-none">
+                        {/* dark:prose-invert flips the Tailwind
+                            Typography plugin's default light-mode text
+                            colors (headings, paragraphs, links, code
+                            blocks) for markdown-rendered assistant
+                            replies -- without it, prose content stays
+                            dark-on-dark same as everything else here
+                            did before the CSS-variable fixes. */}
+                        <article className="prose prose-sm dark:prose-invert max-w-none">
 
                             <ReactMarkdown
                                 remarkPlugins={[remarkGfm]}

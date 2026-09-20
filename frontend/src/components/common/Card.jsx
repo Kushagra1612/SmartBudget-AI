@@ -4,6 +4,7 @@ export default function Card({
     children,
     className = "",
     hover = true,
+    style,
 }) {
     return (
         <motion.div
@@ -18,13 +19,14 @@ export default function Card({
             transition={{
                 duration: 0.25,
             }}
+            style={style}
             className={`
-                bg-white
+                bg-[var(--surface)]
                 rounded-[28px]
                 p-6
-                shadow-[0_12px_40px_rgba(15,23,42,0.08)]
+                shadow-[var(--shadow)]
                 border
-                border-gray-100
+                border-[var(--border)]
                 overflow-hidden
                 ${className}
             `}

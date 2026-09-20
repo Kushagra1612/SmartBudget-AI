@@ -88,7 +88,7 @@ export default function GoalCard({
 
     return (
 
-        <div className="bg-white rounded-xl shadow p-6">
+       <div className="bg-[var(--surface)] text-[var(--text)] border border-[var(--border)] rounded-xl shadow-[var(--shadow)] p-6">
 
             <h2 className="text-xl font-bold">
                 {goal.title}

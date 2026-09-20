@@ -23,7 +23,7 @@ export default function AIPulseCard() {
                     AI Daily Pulse
                 </h2>
 
-                <p className="mt-6 text-gray-500">
+                <p className="mt-6 text-[var(--text-light)]">
                     Unable to load AI insights.
                 </p>
             </Card>

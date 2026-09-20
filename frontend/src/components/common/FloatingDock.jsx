@@ -4,6 +4,7 @@ import {
     Target,
     ChartColumn,
     Bot,
+    Files,
     LogOut,
 } from "lucide-react";
 
@@ -28,6 +29,10 @@ const items = [
         path: "/budget",
     },
     {
+        icon: Files,
+        path: "/statements",
+    },
+    {
         icon: Bot,
         path: "/ai",
     },
@@ -45,7 +50,7 @@ export default function FloatingDock() {
 
         setUser(null);
 
-        navigate("/login");
+        navigate("/");
 
     };
 
@@ -59,13 +64,13 @@ export default function FloatingDock() {
                     items-center
                     gap-4
                     rounded-full
-                    bg-white/80
+                    bg-[var(--surface)]/80
                     backdrop-blur-xl
                     border
-                    border-gray-200
+                    border-[var(--border)]
                     px-5
                     py-3
-                    shadow-[0_20px_60px_rgba(15,23,42,.15)]
+                    shadow-[var(--shadow)]
                 "
             >
 
@@ -91,7 +96,7 @@ export default function FloatingDock() {
                                 ${
                                     isActive
                                         ? "bg-[var(--primary)] text-white scale-110"
-                                        : "text-gray-500 hover:bg-gray-100 hover:scale-105"
+                                        : "text-[var(--text-light)] hover:bg-[var(--bg)] hover:scale-105"
                                 }
                             `
                             }
@@ -103,7 +108,7 @@ export default function FloatingDock() {
 
                 })}
 
-                <div className="w-px h-8 bg-gray-200" />
+                <div className="w-px h-8 bg-[var(--border)]" />
 
                 <button
                     type="button"
@@ -116,7 +121,7 @@ export default function FloatingDock() {
                         flex
                         items-center
                         justify-center
-                        text-gray-500
+                        text-[var(--text-light)]
                         hover:bg-red-50
                         hover:text-red-500
                         hover:scale-105

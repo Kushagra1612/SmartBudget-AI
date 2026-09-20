@@ -26,7 +26,8 @@ api.interceptors.response.use(
             localStorage.removeItem("access_token");
             localStorage.removeItem("token_type");
 
-            if (window.location.pathname !== "/login") {
+            const publicPaths = ["/", "/login", "/register"];
+            if (!publicPaths.includes(window.location.pathname)) {
                 window.location.href = "/login";
             }
         }

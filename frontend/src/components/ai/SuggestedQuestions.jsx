@@ -31,7 +31,9 @@ export default function SuggestedQuestions({
                             py-2
                             rounded-full
                             border
-                            bg-white
+                            border-[var(--border)]
+                            bg-[var(--surface)]
+                            text-[var(--text)]
                             hover:bg-blue-600
                             hover:text-white
                             hover:border-blue-600

@@ -13,7 +13,7 @@ export default function Button({
             "bg-[var(--primary)] text-white hover:brightness-110",
 
         secondary:
-            "bg-white text-[var(--text)] border border-gray-200 hover:bg-gray-50",
+            "bg-[var(--surface)] text-[var(--text)] border border-[var(--border)] hover:bg-[var(--bg)]",
 
         danger:
             "bg-[var(--danger)] text-white hover:brightness-110",

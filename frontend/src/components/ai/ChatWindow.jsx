@@ -6,9 +6,11 @@ export default function ChatWindow({ messages }) {
 
         <div
             className="
-                bg-white
+                bg-[var(--surface)]
+                border
+                border-[var(--border)]
                 rounded-2xl
-                shadow
+                shadow-[var(--shadow)]
                 p-6
                 h-[500px]
                 overflow-y-auto
@@ -20,7 +22,7 @@ export default function ChatWindow({ messages }) {
 
                 <div className="h-full flex items-center justify-center">
 
-                    <p className="text-gray-400">
+                    <p className="text-[var(--text-light)]">
                         Start a conversation with SmartBudget AI.
                     </p>
 

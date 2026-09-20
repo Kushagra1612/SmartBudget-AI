@@ -9,6 +9,7 @@ import ErrorBoundary from "./components/common/ErrorBoundary";
 import "./styles/globals.css";
 
 import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 
 ReactDOM.createRoot(
     document.getElementById("root")
@@ -18,42 +19,46 @@ ReactDOM.createRoot(
 
         <ErrorBoundary>
 
-            <Toaster
-                position="top-right"
-                toastOptions={{
-                    duration: 4000,
-                    style: {
-                        background: "var(--surface)",
-                        color: "var(--text)",
-                        borderRadius: "16px",
-                        boxShadow: "var(--shadow)",
-                        padding: "14px 18px",
-                        fontSize: "14px",
-                    },
-                    success: {
-                        iconTheme: {
-                            primary: "var(--success)",
-                            secondary: "#fff",
+            <ThemeProvider>
+
+                <Toaster
+                    position="top-right"
+                    toastOptions={{
+                        duration: 4000,
+                        style: {
+                            background: "var(--surface)",
+                            color: "var(--text)",
+                            borderRadius: "16px",
+                            boxShadow: "var(--shadow)",
+                            padding: "14px 18px",
+                            fontSize: "14px",
                         },
-                    },
-                    error: {
-                        iconTheme: {
-                            primary: "var(--danger)",
-                            secondary: "#fff",
+                        success: {
+                            iconTheme: {
+                                primary: "var(--success)",
+                                secondary: "#fff",
+                            },
                         },
-                    },
-                }}
-            />
+                        error: {
+                            iconTheme: {
+                                primary: "var(--danger)",
+                                secondary: "#fff",
+                            },
+                        },
+                    }}
+                />
 
-            <BrowserRouter>
+                <BrowserRouter>
 
-                <AuthProvider>
+                    <AuthProvider>
 
-                    <AppRoutes />
+                        <AppRoutes />
 
-                </AuthProvider>
+                    </AuthProvider>
 
-            </BrowserRouter>
+                </BrowserRouter>
+
+            </ThemeProvider>
 
         </ErrorBoundary>
 

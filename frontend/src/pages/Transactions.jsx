@@ -11,6 +11,8 @@ export default function Transactions() {
     const [search, setSearch] = useState("");
     const [category, setCategory] = useState("");
     const [type, setType] = useState("");
+    const [dateFrom, setDateFrom] = useState("");
+    const [dateTo, setDateTo] = useState("");
 
     return (
 
@@ -25,12 +27,18 @@ export default function Transactions() {
                 setCategory={setCategory}
                 type={type}
                 setType={setType}
+                dateFrom={dateFrom}
+                setDateFrom={setDateFrom}
+                dateTo={dateTo}
+                setDateTo={setDateTo}
             />
 
             <TransactionList
                 search={search}
                 category={category}
                 type={type}
+                dateFrom={dateFrom}
+                dateTo={dateTo}
             />
 
         </MainLayout>

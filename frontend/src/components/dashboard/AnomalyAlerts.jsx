@@ -40,7 +40,7 @@ export default function AnomalyAlerts() {
 
                 {!insufficientData && (
 
-                    <span className="text-sm text-gray-400">
+                    <span className="text-sm text-[var(--text-light)]">
                         {totalAnalyzed} transactions scanned
                     </span>
 
@@ -52,7 +52,7 @@ export default function AnomalyAlerts() {
 
                 {insufficientData && (
 
-                    <p className="text-gray-500">
+                    <p className="text-[var(--text-light)]">
                         {message}
                     </p>
 
@@ -60,7 +60,7 @@ export default function AnomalyAlerts() {
 
                 {!insufficientData && anomalies.length === 0 && (
 
-                    <p className="text-gray-500">
+                    <p className="text-[var(--text-light)]">
                         Nothing unusual in your recent spending.
                     </p>
 
@@ -72,12 +72,12 @@ export default function AnomalyAlerts() {
 
                         <div
                             key={anomaly.id}
-                            className="flex justify-between items-start border-b pb-4 last:border-b-0 last:pb-0"
+                            className="flex justify-between items-start border-b border-[var(--border)] pb-4 last:border-b-0 last:pb-0"
                         >
 
                             <div className="pr-4">
 
-                                <p className="text-sm text-gray-500">
+                                <p className="text-sm text-[var(--text-light)]">
                                     {anomaly.reason}
                                 </p>
 

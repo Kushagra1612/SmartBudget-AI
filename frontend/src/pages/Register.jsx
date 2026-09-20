@@ -1,8 +1,14 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import AuthLayout from "../layouts/AuthLayout";
 import RegisterForm from "../components/auth/RegisterForm";
 
 export default function Register() {
+
+    const token = localStorage.getItem("access_token");
+
+    if (token) {
+        return <Navigate to="/dashboard" replace />;
+    }
 
     return (
 

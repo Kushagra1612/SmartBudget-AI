@@ -1,12 +1,23 @@
 @import "tailwindcss";
 @import "./theme.css";
 
+/* Enables the `dark:` utility variant (e.g. dark:bg-gray-800) whenever
+   an ancestor element has the "dark" class -- Tailwind v4 doesn't ship
+   class-based dark mode by default (it defaults to prefers-color-scheme
+   unless told otherwise), so this opts into toggling it manually via
+   ThemeContext instead of only following the OS setting. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
 
     * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+    }
+
+    html {
+        scroll-behavior: smooth;
     }
 
     html,
@@ -20,6 +31,7 @@
         background: var(--bg);
         color: var(--text);
         font-family: Inter, sans-serif;
+        transition: background-color 0.2s ease, color 0.2s ease;
     }
 
     button {

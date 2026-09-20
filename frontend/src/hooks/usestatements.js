@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import { getTransactions } from "../api/transaction";
+import { getStatements } from "../api/statements";
 
-export default function useTransactions() {
+export default function useStatements() {
 
-    const [transactions, setTransactions] = useState([]);
+    const [statements, setStatements] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -11,9 +11,9 @@ export default function useTransactions() {
 
         try {
 
-            const data = await getTransactions();
+            const data = await getStatements();
 
-            setTransactions(data);
+            setStatements(data);
 
         } catch (err) {
 
@@ -34,7 +34,7 @@ export default function useTransactions() {
     }, [refetch]);
 
     return {
-        transactions,
+        statements,
         loading,
         error,
         refetch,

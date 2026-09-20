@@ -16,7 +16,7 @@ export default function FinancialAdvice() {
                     Financial Advice
                 </h2>
 
-                <p className="mt-4 text-gray-500">
+                <p className="mt-4 text-[var(--text-light)]">
                     Generating personalized advice...
                 </p>
             </Card>
@@ -31,7 +31,7 @@ export default function FinancialAdvice() {
                 💡 Monthly Financial Advice
             </h2>
 
-            <div className="mt-6 whitespace-pre-line text-gray-700 leading-7">
+            <div className="mt-6 whitespace-pre-line text-[var(--text)] leading-7">
 
                 {advice}
 
@@ -39,7 +39,7 @@ export default function FinancialAdvice() {
 
             {agentsUsed && agentsUsed.length > 0 && (
 
-                <p className="mt-4 text-xs text-gray-400">
+                <p className="mt-4 text-xs text-[var(--text-light)]">
                     Consulted:{" "}
                     {agentsUsed
                         .map((a) => a.charAt(0).toUpperCase() + a.slice(1))

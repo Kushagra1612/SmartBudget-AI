@@ -15,17 +15,30 @@ export default function FinancialHealthCard({
     const strokeDashoffset =
         circumference - (clampedScore / 100) * circumference;
 
-    const ringColor =
+    const tintVar =
         score >= 80
-            ? "var(--success)"
+            ? "--success"
             : score >= 60
-            ? "var(--warning)"
-            : "var(--danger)";
+            ? "--warning"
+            : "--danger";
+
+    const ringColor = `var(${tintVar})`;
+
+    // A soft wash of the score's color blended into whatever the
+    // current surface color is -- color-mix() means this adapts
+    // automatically to light/dark mode instead of needing a
+    // hardcoded tint per theme. This gives the most important number
+    // on the dashboard a visual "moment" instead of looking
+    // identical to every other card.
+    const tintBackground = `color-mix(in srgb, var(${tintVar}) 12%, var(--surface))`;
 
     return (
-        <Card className="flex flex-col items-center text-center">
+        <Card
+            className="flex flex-col items-center text-center"
+            style={{ background: tintBackground }}
+        >
 
-            <p className="text-gray-500 font-medium">
+            <p className="text-[var(--text-light)] font-medium">
                 Financial Health
             </p>
 
@@ -39,7 +52,7 @@ export default function FinancialHealthCard({
 
                     {/* Background track */}
                     <circle
-                        stroke="var(--border, #E5E7EB)"
+                        stroke="var(--border)"
                         fill="transparent"
                         strokeWidth={stroke}
                         r={normalizedRadius}
@@ -71,7 +84,7 @@ export default function FinancialHealthCard({
                         {score}
                     </h1>
 
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-[var(--text-light)]">
                         {grade}
                     </p>
 

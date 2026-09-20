@@ -8,13 +8,17 @@ export default function TransactionFilters({
     setCategory,
     type,
     setType,
+    dateFrom,
+    setDateFrom,
+    dateTo,
+    setDateTo,
 }) {
 
     return (
 
-        <div className="mt-8 flex gap-4">
+        <div className="mt-8 flex flex-wrap gap-4">
 
-            <div className="relative flex-1">
+            <div className="relative flex-1 min-w-[200px]">
 
                 <Search
                     className="
@@ -38,6 +42,9 @@ export default function TransactionFilters({
                         py-3
                         rounded-xl
                         border
+                        border-[var(--border)]
+                        bg-[var(--surface)]
+                        text-[var(--text)]
                         outline-none
                     "
                 />
@@ -47,7 +54,7 @@ export default function TransactionFilters({
             <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="px-4 rounded-xl border"
+                className="px-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--text)]"
             >
 
                 <option value="">
@@ -70,7 +77,7 @@ export default function TransactionFilters({
             <select
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                className="px-4 rounded-xl border"
+                className="px-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--text)]"
             >
 
                 <option value="">
@@ -90,6 +97,36 @@ export default function TransactionFilters({
                 </option>
 
             </select>
+
+            <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                title="From date"
+                className="px-4 py-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--text)]"
+            />
+
+            <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                title="To date"
+                className="px-4 py-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--text)]"
+            />
+
+            {(dateFrom || dateTo) && (
+
+                <button
+                    onClick={() => {
+                        setDateFrom("");
+                        setDateTo("");
+                    }}
+                    className="px-4 rounded-xl border border-[var(--border)] text-[var(--text-light)] hover:text-[var(--text)]"
+                >
+                    Clear dates
+                </button>
+
+            )}
 
         </div>
 

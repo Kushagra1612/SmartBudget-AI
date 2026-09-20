@@ -1,5 +1,6 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import Card from "../common/Card";
+import { formatRupees } from "../../utils/currency";
 
 const CHART_COLORS = [
     "var(--primary)",
@@ -11,12 +12,6 @@ const CHART_COLORS = [
     "#EC4899",
     "#06B6D4",
 ];
-
-function formatRupees(value) {
-    return `₹${Number(value).toLocaleString("en-IN", {
-        maximumFractionDigits: 0,
-    })}`;
-}
 
 export default function SpendingOverview({
     categories = [],

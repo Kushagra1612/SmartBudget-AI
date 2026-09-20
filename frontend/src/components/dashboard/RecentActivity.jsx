@@ -16,7 +16,7 @@ export default function RecentActivity({
 
                 {transactions.length === 0 ? (
 
-                    <p className="text-gray-400">
+                    <p className="text-[var(--text-light)]">
                         No recent transactions.
                     </p>
 
@@ -26,7 +26,7 @@ export default function RecentActivity({
 
                         <div
                             key={transaction.id}
-                            className="flex justify-between items-center border-b pb-3"
+                            className="flex justify-between items-center border-b border-[var(--border)] pb-3"
                         >
 
                             <div>
@@ -37,7 +37,7 @@ export default function RecentActivity({
 
                                 </h3>
 
-                                <p className="text-sm text-gray-500">
+                                <p className="text-sm text-[var(--text-light)]">
 
                                     {transaction.category}
 
@@ -59,7 +59,7 @@ export default function RecentActivity({
 
                                 </p>
 
-                                <p className="text-xs text-gray-400">
+                                <p className="text-xs text-[var(--text-light)]">
 
                                     {transaction.transaction_date}
 
